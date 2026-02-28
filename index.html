@@ -5,255 +5,194 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>IDinsight Client Opportunity Finder</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --bg-primary: #0F1117;
-      --bg-card: #161822;
-      --bg-input: #1E2030;
-      --border: #1E2030;
-      --border-hover: #2A2D40;
-      --text-primary: #F4F4F5;
+      --idi-dark-blue: #1C2F62;
+      --idi-light-blue: #A8CCEB;
+      --idi-blue-3: #264D96;
+      --idi-blue-4: #5480D6;
+      --idi-blue-5: #A8BFEB;
+      --idi-dark-grey: #212E38;
+      --idi-light-grey: #F2F2F5;
+      --idi-green-dark: #0F4D42;
+      --idi-green-light: #ABE5BF;
+      --idi-yellow-dark: #D49E00;
+      --idi-yellow-light: #FFE087;
+      --idi-purple-dark: #472666;
+      --bg: #0D1420;
+      --bg-card: #111B2E;
+      --bg-input: #162036;
+      --border: #1A2744;
+      --border-hover: #264D96;
+      --text-primary: #F2F2F5;
       --text-secondary: #D1D5DB;
       --text-muted: #9CA3AF;
       --text-dim: #6B7280;
       --text-faint: #4B5563;
-      --blue: #2563EB;
-      --blue-hover: #1D4ED8;
-      --green: #34D399;
-      --green-dark: #059669;
-      --yellow: #FBBF24;
-      --yellow-dark: #D97706;
-      --red: #F87171;
-      --purple: #7C3AED;
-      --slack-purple: #4A154B;
-      --slack-hover: #611f69;
     }
-
     body {
-      min-height: 100vh;
-      background: var(--bg-primary);
-      color: #E4E4E7;
-      font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
-      line-height: 1.5;
+      min-height: 100vh; background: var(--bg); color: #E4E4E7;
+      font-family: 'Inter', system-ui, sans-serif; line-height: 1.5;
     }
-
-    .mono { font-family: 'DM Mono', monospace; }
-
-    /* Header */
+    .mono { font-family: 'Inter', monospace; font-variant-numeric: tabular-nums; }
     .header {
-      border-bottom: 1px solid var(--border);
-      padding: 24px 32px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 16px;
+      border-bottom: 1px solid var(--border); padding: 20px 32px;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 16px;
     }
     .header-left { display: flex; flex-direction: column; gap: 2px; }
     .header-title-row { display: flex; align-items: center; gap: 12px; }
-    .logo {
-      width: 32px; height: 32px; border-radius: 8px;
-      background: linear-gradient(135deg, var(--blue), var(--purple));
-      display: flex; align-items: center; justify-content: center;
-      font-size: 16px; font-weight: 700; color: #fff; flex-shrink: 0;
-    }
-    .header h1 { font-size: 20px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.02em; }
-    .header-sub { font-size: 13px; color: var(--text-dim); margin-left: 44px; }
-    .header-credit { font-size: 11px; color: var(--text-faint); margin-left: 44px; margin-top: 2px; font-style: italic; }
+    .logo-img { height: 28px; opacity: 0.9; }
+    .header h1 { font-size: 18px; font-weight: 600; color: var(--text-primary); letter-spacing: -0.02em; }
+    .header-sub { font-size: 12px; color: var(--text-dim); margin-left: 0; margin-top: 4px; }
+    .header-credit { font-size: 11px; color: var(--text-faint); margin-top: 2px; font-style: italic; }
     .header-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
     .last-scan { font-size: 12px; color: var(--text-faint); }
-
-    /* Buttons */
     .btn-primary {
-      background: var(--blue); color: #fff; border: none;
-      padding: 11px 24px; border-radius: 8px;
-      font-family: inherit; font-size: 14px; font-weight: 600;
-      cursor: pointer; transition: all 0.15s ease;
+      background: var(--idi-dark-blue); color: #fff; border: none;
+      padding: 10px 22px; border-radius: 6px; font-family: inherit; font-size: 13px;
+      font-weight: 600; cursor: pointer; transition: all 0.15s;
       display: inline-flex; align-items: center; gap: 8px;
     }
-    .btn-primary:hover { background: var(--blue-hover); }
+    .btn-primary:hover { background: var(--idi-blue-3); }
     .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-
     .btn-slack {
-      background: var(--slack-purple); color: #fff; border: none;
-      padding: 9px 18px; border-radius: 8px;
-      font-family: inherit; font-size: 13px; font-weight: 600;
-      cursor: pointer; transition: all 0.15s ease;
-      display: inline-flex; align-items: center; gap: 8px;
+      background: #4A154B; color: #fff; border: none; padding: 9px 16px; border-radius: 6px;
+      font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+      display: inline-flex; align-items: center; gap: 6px;
     }
-    .btn-slack:hover { background: var(--slack-hover); }
+    .btn-slack:hover { background: #611f69; }
     .btn-slack:disabled { opacity: 0.5; cursor: not-allowed; }
-
     .btn-download {
-      background: transparent; color: var(--text-muted); border: 1px solid var(--border-hover);
-      padding: 9px 18px; border-radius: 8px;
-      font-family: inherit; font-size: 13px; font-weight: 500;
-      cursor: pointer; transition: all 0.15s ease;
-      display: inline-flex; align-items: center; gap: 8px;
+      background: transparent; color: var(--text-muted); border: 1px solid var(--border);
+      padding: 9px 16px; border-radius: 6px; font-family: inherit; font-size: 12px;
+      font-weight: 500; cursor: pointer; transition: all 0.15s;
+      display: inline-flex; align-items: center; gap: 6px;
     }
-    .btn-download:hover { border-color: var(--text-dim); color: var(--text-secondary); }
-
+    .btn-download:hover { border-color: var(--idi-blue-4); color: var(--text-secondary); }
     .filter-btn {
-      padding: 6px 16px; border-radius: 20px;
-      border: 1px solid var(--border-hover); background: transparent;
-      color: var(--text-muted); font-size: 13px; font-family: inherit;
-      cursor: pointer; transition: all 0.15s ease;
+      padding: 5px 14px; border-radius: 16px; border: 1px solid var(--border);
+      background: transparent; color: var(--text-muted); font-size: 12px;
+      font-family: inherit; cursor: pointer; transition: all 0.15s;
     }
-    .filter-btn:hover { border-color: var(--text-faint); color: var(--text-secondary); }
-    .filter-btn.active { background: var(--blue); border-color: var(--blue); color: #fff; }
-
-    /* Setup panel */
-    .setup-panel {
-      max-width: 960px; margin: 0 auto; padding: 24px 32px;
-    }
+    .filter-btn:hover { border-color: var(--idi-blue-4); color: var(--text-secondary); }
+    .filter-btn.active { background: var(--idi-dark-blue); border-color: var(--idi-dark-blue); color: #fff; }
+    .setup-panel { max-width: 960px; margin: 0 auto; padding: 24px 32px; }
     .setup-card {
-      background: var(--bg-card); border: 1px solid var(--border);
-      border-radius: 12px; padding: 24px; margin-bottom: 16px;
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px;
+      padding: 20px; margin-bottom: 12px;
     }
-    .setup-card h3 { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
-    .setup-card p { font-size: 13px; color: var(--text-dim); margin-bottom: 12px; }
+    .setup-card h3 { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 3px; }
+    .setup-card p { font-size: 12px; color: var(--text-dim); margin-bottom: 10px; line-height: 1.6; }
+    .setup-card a { color: var(--idi-blue-4); }
     .input-field {
-      background: var(--bg-input); border: 1px solid var(--border-hover);
-      color: #E4E4E7; padding: 10px 14px; border-radius: 8px;
-      font-family: 'DM Mono', monospace; font-size: 13px; outline: none;
-      width: 100%; max-width: 500px;
+      background: var(--bg-input); border: 1px solid var(--border); color: #E4E4E7;
+      padding: 9px 12px; border-radius: 6px; font-family: inherit; font-size: 12px;
+      outline: none; width: 100%; max-width: 480px;
     }
-    .input-field:focus { border-color: var(--blue); }
+    .input-field:focus { border-color: var(--idi-blue-4); }
     .input-field::placeholder { color: var(--text-faint); }
-    .input-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-    .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
-    .status-dot.green { background: var(--green); }
-    .status-dot.red { background: var(--red); }
-    .status-dot.yellow { background: var(--yellow); }
-    .status-text { font-size: 12px; color: var(--text-dim); }
-
-    /* Main content */
+    .input-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+    .status-dot.green { background: var(--idi-green-light); }
+    .status-dot.red { background: #F87171; }
+    .status-text { font-size: 11px; color: var(--text-dim); }
     .main { max-width: 960px; margin: 0 auto; padding: 0 32px 48px; }
-
-    /* Stats */
-    .stats-row { display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+    .stats-row { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
     .stat-card {
-      flex: 1; min-width: 120px;
-      padding: 14px 18px; border-radius: 10px;
+      flex: 1; min-width: 100px; padding: 12px 16px; border-radius: 8px;
       background: var(--bg-card); border: 1px solid var(--border);
     }
     .stat-label {
-      font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;
-      color: var(--text-dim); font-weight: 500; font-family: 'DM Mono', monospace;
+      font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em;
+      color: var(--text-dim); font-weight: 600;
     }
-    .stat-value { font-size: 28px; font-weight: 700; font-family: 'DM Mono', monospace; margin-top: 4px; }
-
-    /* Filters bar */
+    .stat-value { font-size: 26px; font-weight: 700; margin-top: 2px; }
     .filters-bar {
       display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 20px; flex-wrap: wrap; gap: 12px;
+      margin-bottom: 16px; flex-wrap: wrap; gap: 10px;
     }
-    .filters-left { display: flex; gap: 8px; }
+    .filters-left { display: flex; gap: 6px; }
     .filters-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-
-    /* Opportunity cards */
     .opp-card {
-      border: 1px solid var(--border); border-radius: 12px;
-      padding: 20px 24px; cursor: pointer;
-      transition: all 0.2s ease; background: var(--bg-card);
-      margin-bottom: 12px;
+      border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px;
+      cursor: pointer; transition: all 0.2s; background: var(--bg-card); margin-bottom: 10px;
     }
-    .opp-card:hover { border-color: var(--border-hover); background: #1A1D2E; transform: translateY(-1px); }
-    .opp-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 10px; }
-    .opp-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap; }
-    .opp-title { font-size: 15px; font-weight: 600; color: var(--text-primary); line-height: 1.4; }
-    .opp-summary { font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 10px; }
-    .opp-dates { display: flex; gap: 16px; font-size: 12px; color: var(--text-dim); flex-wrap: wrap; }
+    .opp-card:hover { border-color: var(--border-hover); background: #142238; transform: translateY(-1px); }
+    .opp-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; margin-bottom: 8px; }
+    .opp-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; flex-wrap: wrap; }
+    .opp-title { font-size: 14px; font-weight: 600; color: var(--text-primary); line-height: 1.4; }
+    .opp-summary { font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-bottom: 8px; }
+    .opp-dates { display: flex; gap: 14px; font-size: 11px; color: var(--text-dim); flex-wrap: wrap; }
     .opp-score { text-align: right; flex-shrink: 0; }
-    .opp-score-num { font-size: 28px; font-weight: 700; line-height: 1; }
-    .opp-score-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); margin-top: 2px; }
-
-    /* Badges */
+    .opp-score-num { font-size: 26px; font-weight: 700; line-height: 1; }
+    .opp-score-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-dim); margin-top: 2px; }
     .badge {
-      padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 700;
-      font-family: 'DM Mono', monospace; letter-spacing: 0.03em; display: inline-block;
+      padding: 2px 9px; border-radius: 10px; font-size: 10px; font-weight: 700;
+      letter-spacing: 0.04em; display: inline-block;
     }
-    .badge-pursue { background: var(--green-dark); color: #fff; }
-    .badge-watch { background: var(--yellow-dark); color: #fff; }
+    .badge-pursue { background: var(--idi-green-dark); color: #fff; }
+    .badge-watch { background: var(--idi-yellow-dark); color: #fff; }
     .badge-skip { background: var(--text-dim); color: #fff; }
     .chip {
-      display: inline-flex; align-items: center; gap: 4px;
-      padding: 3px 10px; border-radius: 12px; background: var(--bg-input);
-      font-size: 11px; color: var(--text-muted); font-family: 'DM Mono', monospace;
+      display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px;
+      border-radius: 10px; background: var(--bg-input); font-size: 10px; color: var(--text-muted);
     }
-
-    /* Expanded detail */
-    .opp-detail { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); display: none; }
+    .opp-detail { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); display: none; }
     .opp-detail.open { display: block; }
-    .opp-rationale { font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px; font-style: italic; }
-    .score-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
-    .score-item-header { display: flex; justify-content: space-between; margin-bottom: 4px; }
-    .score-bar { height: 6px; border-radius: 3px; background: var(--bg-input); overflow: hidden; }
+    .opp-rationale { font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 14px; font-style: italic; }
+    .score-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 14px; }
+    .score-item-header { display: flex; justify-content: space-between; margin-bottom: 3px; }
+    .score-bar { height: 5px; border-radius: 3px; background: var(--bg-input); overflow: hidden; }
     .score-fill { height: 100%; border-radius: 3px; transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
-    .reqs-label { margin-bottom: 8px; }
-    .reqs-list { display: flex; gap: 8px; flex-wrap: wrap; }
-    .req-chip { padding: 4px 12px; border-radius: 6px; background: var(--bg-input); font-size: 12px; color: var(--text-muted); }
-
-    /* Sources panel */
-    .sources-toggle {
-      background: none; border: none; color: var(--text-dim);
-      font-size: 13px; cursor: pointer; font-family: inherit;
-      display: flex; align-items: center; gap: 6px; margin-bottom: 16px;
+    .reqs-list { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+    .req-chip { padding: 3px 10px; border-radius: 5px; background: var(--bg-input); font-size: 11px; color: var(--text-muted); }
+    .opp-link {
+      display: inline-flex; align-items: center; gap: 4px; margin-top: 10px;
+      font-size: 12px; color: var(--idi-blue-4); text-decoration: none; font-weight: 500;
     }
-    .sources-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+    .opp-link:hover { color: var(--idi-light-blue); text-decoration: underline; }
+    .sources-toggle {
+      background: none; border: none; color: var(--text-dim); font-size: 12px;
+      cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 5px; margin-bottom: 14px;
+    }
+    .sources-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
     .source-item {
-      padding: 8px 14px; border-radius: 8px;
-      background: var(--bg-card); border: 1px solid var(--border); font-size: 13px;
+      padding: 7px 12px; border-radius: 6px; background: var(--bg-card);
+      border: 1px solid var(--border); font-size: 12px;
     }
     .source-name { font-weight: 600; color: var(--text-secondary); }
-    .source-desc { color: var(--text-faint); margin-left: 8px; }
-
-    /* Architecture footer */
+    .source-desc { color: var(--text-faint); margin-left: 6px; }
     .arch-footer {
-      margin-top: 48px; padding: 24px 0; border-top: 1px solid var(--border);
-      color: var(--text-faint); font-size: 12px; line-height: 1.6;
+      margin-top: 40px; padding: 20px 0; border-top: 1px solid var(--border);
+      color: var(--text-faint); font-size: 11px; line-height: 1.7;
     }
     .arch-footer strong { color: var(--text-muted); }
-
-    /* Empty state */
-    .empty-state { text-align: center; padding: 80px 20px; color: var(--text-faint); }
-    .empty-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.3; }
-
-    /* Loading */
+    .empty-state { text-align: center; padding: 70px 20px; color: var(--text-faint); }
+    .empty-icon { font-size: 44px; margin-bottom: 14px; opacity: 0.3; }
     @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
     .loading-dot { animation: pulse 1.5s ease-in-out infinite; }
-
-    /* Animations */
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    .fade-in { animation: fadeIn 0.4s ease forwards; }
-
-    /* Responsive */
-    @media (max-width: 640px) {
-      .header { padding: 16px; }
-      .setup-panel, .main { padding-left: 16px; padding-right: 16px; }
-      .stat-card { min-width: 80px; }
-      .opp-card { padding: 16px; }
-    }
-
-    /* Slack input area */
-    .slack-config { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-    .slack-status { font-size: 12px; margin-left: 4px; }
-
-    /* Urgent deadline */
-    .deadline-urgent { color: var(--yellow); font-weight: 600; }
-
-    /* Error */
-    .error-box {
-      padding: 16px; border-radius: 8px;
-      background: #2D1B1B; border: 1px solid #7F1D1D;
-      color: #FCA5A5; font-size: 14px; margin-bottom: 24px;
-    }
-
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-in { animation: fadeIn 0.35s ease forwards; }
     .hidden { display: none !important; }
+    .error-box {
+      padding: 14px; border-radius: 8px; background: #2D1B1B; border: 1px solid #7F1D1D;
+      color: #FCA5A5; font-size: 13px; margin-bottom: 20px;
+    }
+    .deadline-urgent { color: var(--idi-yellow-dark); font-weight: 600; }
+    .slack-help {
+      background: var(--bg-input); border: 1px solid var(--border); border-radius: 8px;
+      padding: 14px; margin-top: 10px; font-size: 11px; color: var(--text-dim); line-height: 1.7;
+    }
+    .slack-help ol { padding-left: 18px; }
+    .slack-help li { margin-bottom: 4px; }
+    .slack-help code { background: #0D1420; padding: 1px 5px; border-radius: 3px; font-size: 11px; color: var(--idi-light-blue); }
+    @media (max-width: 640px) {
+      .header, .setup-panel, .main { padding-left: 16px; padding-right: 16px; }
+    }
   </style>
 </head>
 <body>
@@ -262,7 +201,7 @@
   <div class="header">
     <div class="header-left">
       <div class="header-title-row">
-        <div class="logo">I</div>
+        <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAMnB9ADASIAAhEBAxEB/8QAHAABAAMBAQEBAQAAAAAAAAAAAAUGBwQDAgEI/8QATRABAAEDAQIGDAoJAwMFAQEAAAECAwQFBhESITE1c7EHExYiNEFRYXFyktEUMzZSVIGRobLBFTJCU2J0k8LhI2OCJIOiJUNE8PFk0v/EABoBAQADAQEBAAAAAAAAAAAAAAADBAUCAQb/xAAuEQEAAgIBAgUEAwADAQEBAQAAAQIDBBExMxIUITJxQUJRUgUTImGBkSNiFdH/2gAMAwEAAhEDEQA/AP7LAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA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AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAf/9k=" alt="IDinsight" class="logo-img">
         <h1>Client Opportunity Finder</h1>
       </div>
       <p class="header-sub">AI-powered daily digest of RFPs & funding opportunities for IDinsight</p>
@@ -270,100 +209,94 @@
     </div>
     <div class="header-actions">
       <span id="lastScan" class="last-scan mono"></span>
-      <button id="scanBtn" class="btn-primary" onclick="runScan()">
-        ▶ Scan Opportunities
-      </button>
+      <button id="scanBtn" class="btn-primary" onclick="runScan()">&#9654; Scan Opportunities</button>
     </div>
   </div>
 
-  <!-- SETUP PANEL -->
+  <!-- SETUP -->
   <div class="setup-panel">
     <div class="setup-card">
       <h3>API Configuration</h3>
-      <p>Enter your Anthropic API key to power the AI scoring engine. Your key stays in your browser and is never stored.</p>
+      <p>Enter your Anthropic API key to power the AI scoring engine. Your key stays in your browser and is never stored or transmitted anywhere else.</p>
       <div class="input-row">
-        <input type="password" id="apiKey" class="input-field" placeholder="sk-ant-api03-..." style="max-width:420px;">
-        <button class="btn-primary" style="padding:10px 18px; font-size:13px;" onclick="validateKey()">Validate</button>
+        <input type="password" id="apiKey" class="input-field" placeholder="sk-ant-api03-..." style="max-width:400px;">
+        <button class="btn-primary" style="padding:9px 16px;font-size:12px;" onclick="validateKey()">Validate</button>
         <span id="keyStatus"></span>
       </div>
     </div>
     <div class="setup-card">
       <h3>Slack Integration (Optional)</h3>
-      <p>Paste a <a href="https://api.slack.com/messaging/webhooks" target="_blank" style="color:var(--blue);">Slack Incoming Webhook URL</a> to send the daily digest to your channel.</p>
+      <p>Paste a Slack Incoming Webhook URL to send the daily digest directly to your team's channel.</p>
       <div class="input-row">
-        <input type="text" id="slackWebhook" class="input-field" placeholder="https://hooks.slack.com/services/T.../B.../..." style="max-width:500px;">
+        <input type="text" id="slackWebhook" class="input-field" placeholder="https://hooks.slack.com/services/T.../B.../..." style="max-width:480px;">
         <span id="slackStatus"></span>
       </div>
+      <details style="margin-top:8px;">
+        <summary style="font-size:11px;color:var(--idi-blue-4);cursor:pointer;">How do I get a Slack webhook URL?</summary>
+        <div class="slack-help">
+          <ol>
+            <li>Go to <a href="https://api.slack.com/apps" target="_blank" style="color:var(--idi-blue-4);">api.slack.com/apps</a> and click <strong>Create New App</strong> → <strong>From scratch</strong></li>
+            <li>Name it something like <code>IDinsight Opportunity Finder</code> and pick your workspace</li>
+            <li>In the left sidebar, click <strong>Incoming Webhooks</strong> → toggle it <strong>On</strong></li>
+            <li>Click <strong>Add New Webhook to Workspace</strong> at the bottom</li>
+            <li>Choose the channel you want digests posted to (e.g. <code>#business-development</code>) and click <strong>Allow</strong></li>
+            <li>Copy the webhook URL that appears — it looks like <code>https://hooks.slack.com/services/T.../B.../...</code></li>
+            <li>Paste it in the field above. That's it!</li>
+          </ol>
+          <p style="margin-top:6px;">Each webhook is tied to one channel. To post to a different channel, create another webhook. Anyone in your workspace with admin access can do this in ~2 minutes.</p>
+        </div>
+      </details>
     </div>
 
-    <!-- Sources -->
     <button class="sources-toggle" onclick="toggleSources()">
-      <span id="sourcesArrow" style="transition:0.2s;display:inline-block;">▸</span>
+      <span id="sourcesArrow" style="transition:0.2s;display:inline-block;">&#9656;</span>
       Data Sources (6)
     </button>
     <div id="sourcesGrid" class="sources-grid hidden">
-      <div class="source-item"><span class="source-name">ReliefWeb API</span><span class="source-desc">Live humanitarian opportunities</span> <span class="chip">LIVE API</span></div>
-      <div class="source-item"><span class="source-name">UNGM</span><span class="source-desc">UN procurement notices</span> <span class="chip">Sample</span></div>
+      <div class="source-item"><span class="source-name">ReliefWeb API</span><span class="source-desc">Live humanitarian data</span> <span class="chip">LIVE</span></div>
+      <div class="source-item"><span class="source-name">UNGM</span><span class="source-desc">UN procurement</span> <span class="chip">Sample</span></div>
       <div class="source-item"><span class="source-name">DevEx</span><span class="source-desc">Dev funding & RFPs</span> <span class="chip">Sample</span></div>
       <div class="source-item"><span class="source-name">SAM.gov</span><span class="source-desc">USAID contracts</span> <span class="chip">Sample</span></div>
-      <div class="source-item"><span class="source-name">World Bank</span><span class="source-desc">Project procurement</span> <span class="chip">Sample</span></div>
+      <div class="source-item"><span class="source-name">World Bank</span><span class="source-desc">Procurement</span> <span class="chip">Sample</span></div>
       <div class="source-item"><span class="source-name">Gates Foundation</span><span class="source-desc">Open RFPs</span> <span class="chip">Sample</span></div>
     </div>
   </div>
 
-  <!-- ERROR -->
+  <!-- MAIN -->
   <div class="main">
     <div id="errorBox" class="error-box hidden"></div>
-
-    <!-- EMPTY STATE -->
     <div id="emptyState" class="empty-state">
-      <div class="empty-icon">📡</div>
-      <p style="font-size:16px;margin-bottom:8px;">
-        Configure your API key above, then click <strong style="color:#93C5FD;">Scan Opportunities</strong>
-      </p>
-      <p style="font-size:13px;">
-        The tool pulls real data from ReliefWeb + sample RFPs from 5 other sources, then scores each against IDinsight's profile using AI.
-      </p>
+      <div class="empty-icon">&#128225;</div>
+      <p style="font-size:15px;margin-bottom:6px;">Configure your API key above, then click <strong style="color:var(--idi-light-blue);">Scan Opportunities</strong></p>
+      <p style="font-size:12px;">Pulls real data from ReliefWeb + sample RFPs from 5 other sources, scores each against IDinsight's profile.</p>
     </div>
-
-    <!-- RESULTS (hidden initially) -->
     <div id="resultsSection" class="hidden">
-      <!-- Stats -->
       <div class="stats-row fade-in" id="statsRow"></div>
-
-      <!-- Filters + Actions -->
       <div class="filters-bar">
         <div class="filters-left" id="filterBtns"></div>
         <div class="filters-right">
           <button class="btn-download" onclick="downloadPDF()">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Download PDF
           </button>
           <button class="btn-slack" id="slackSendBtn" onclick="sendToSlack()">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zM8.834 6.313a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zM18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zM17.688 8.834a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312zM15.165 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zM15.165 17.688a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z"/></svg>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zM8.834 6.313a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zM18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zM17.688 8.834a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312zM15.165 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zM15.165 17.688a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z"/></svg>
             Post to Slack
           </button>
         </div>
       </div>
-
-      <!-- Cards container -->
       <div id="cardsContainer"></div>
     </div>
-
-    <!-- ARCHITECTURE FOOTER -->
     <div class="arch-footer">
-      <div class="stat-label" style="margin-bottom:8px;color:var(--text-dim);">ARCHITECTURE</div>
-      <p><strong>Data Layer:</strong> Real-time ReliefWeb API + sample feeds from UNGM, DevEx, SAM.gov, World Bank, Gates Foundation. In production: RSS/API aggregation via cron job (GitHub Actions or Google Apps Script on a daily timer).</p>
-      <p style="margin-top:4px;"><strong>Intelligence Layer:</strong> Claude API (Sonnet) scores each opportunity across 5 dimensions — geographic fit, sector alignment, service match, funder familiarity, strategic value — using IDinsight's organizational profile as the evaluation rubric.</p>
-      <p style="margin-top:4px;"><strong>Delivery Layer:</strong> Slack webhook for daily digest delivery. PDF export for offline review. Extensible to email (SendGrid/SES) and calendar integration for deadline tracking.</p>
-      <p style="margin-top:4px;"><strong>Automation:</strong> A GitHub Action or Google Apps Script runs this pipeline daily at 8 AM, fetches fresh opportunities, scores them, and posts the digest to a designated Slack channel — zero manual intervention required.</p>
+      <div class="stat-label" style="margin-bottom:6px;">ARCHITECTURE</div>
+      <p><strong>Data Layer:</strong> Real-time ReliefWeb API + sample feeds from UNGM, DevEx, SAM.gov, World Bank, Gates Foundation. Production: RSS/API aggregation via daily cron (GitHub Actions or Google Apps Script).</p>
+      <p style="margin-top:3px;"><strong>Intelligence Layer:</strong> Claude API (Sonnet) scores each opportunity across 5 dimensions — geographic fit, sector alignment, service match, funder familiarity, strategic value — using IDinsight's organizational profile.</p>
+      <p style="margin-top:3px;"><strong>Delivery Layer:</strong> Slack webhook for daily digest. PDF export for offline review. Extensible to email (SendGrid/SES) and calendar integration for deadline tracking.</p>
+      <p style="margin-top:3px;"><strong>Automation:</strong> A GitHub Action or Google Apps Script runs daily at 8 AM, fetches fresh opportunities, scores them, and posts to Slack — zero manual intervention.</p>
     </div>
   </div>
 
 <script>
-// ============================================================
-// IDinsight Organizational Profile
-// ============================================================
 const PROFILE = {
   name: "IDinsight",
   geographies: {
@@ -391,571 +324,237 @@ const PROFILE = {
   ]
 };
 
-const SYSTEM_PROMPT = `You are an AI assistant for IDinsight's business development team. Your job is to analyze requests for proposals (RFPs), funding opportunities, and project leads to determine their relevance to IDinsight.
+const SYSTEM_PROMPT = `You are an AI assistant for IDinsight's business development team. Analyze RFPs and funding opportunities for relevance to IDinsight.
 
 IDinsight Profile:
 ${JSON.stringify(PROFILE, null, 2)}
 
-For each opportunity, evaluate:
-1. GEOGRAPHIC FIT (0-10): Does it target IDinsight's operating countries/regions?
-2. SECTOR FIT (0-10): Does it align with IDinsight's sector expertise?
+Evaluate each opportunity on:
+1. GEOGRAPHIC FIT (0-10): Target IDinsight's countries/regions?
+2. SECTOR FIT (0-10): Align with sector expertise?
 3. SERVICE FIT (0-10): Does IDinsight offer the required services?
-4. FUNDER FAMILIARITY (0-5): Is the funder one IDinsight already works with or knows?
-5. STRATEGIC VALUE (0-5): Could this open new relationships or demonstrate capabilities?
+4. FUNDER FAMILIARITY (0-5): Known funder?
+5. STRATEGIC VALUE (0-5): Opens new relationships?
 
-Return your analysis as JSON only. No markdown, no backticks, no explanation — just the JSON object.
-The JSON must have this structure:
+Return ONLY valid JSON, no markdown, no backticks:
 {
   "opportunities": [
     {
       "title": "string",
-      "organization": "string - the funding/issuing org",
+      "organization": "string",
       "url": "string",
       "deadline": "string or null",
       "published": "string",
       "country": "string",
       "sector": "string",
-      "summary": "2-3 sentence plain English summary of what they want",
-      "relevance_score": number (0-100, computed as: geographic_fit*3 + sector_fit*2.5 + service_fit*2.5 + funder_familiarity*4 + strategic_value*4),
+      "summary": "2-3 sentence summary",
+      "relevance_score": number (0-100),
       "geographic_fit": number (0-10),
       "sector_fit": number (0-10),
       "service_fit": number (0-10),
       "funder_familiarity": number (0-5),
       "strategic_value": number (0-5),
-      "rationale": "1-2 sentences on why this is or isn't a fit for IDinsight specifically",
-      "recommended_action": "one of: PURSUE, WATCH, SKIP",
-      "key_requirements": ["array of 2-3 top requirements from the opportunity"]
+      "rationale": "1-2 sentences on fit",
+      "recommended_action": "PURSUE or WATCH or SKIP",
+      "key_requirements": ["2-3 items"]
     }
   ]
 }`;
 
-// Sample opportunities (simulating non-ReliefWeb sources)
 const SAMPLE_OPPORTUNITIES = [
-  {
-    title: "Impact Evaluation of Cash Transfer Program in Northern Nigeria",
-    source: "World Bank", url: "#", published: "2026-02-26", deadline: "2026-03-20",
-    description: "The World Bank invites expressions of interest for conducting a rigorous impact evaluation of the National Social Safety Net Program (NASSP) expansion in Northern Nigeria. The evaluation should use a mixed-methods approach including a randomized controlled trial design. Key outcomes include household consumption, food security, children's school enrollment, and women's economic empowerment."
-  },
-  {
-    title: "AI-Powered Crop Disease Detection for Smallholder Farmers in South Asia",
-    source: "Gates Foundation", url: "#", published: "2026-02-24", deadline: "2026-04-01",
-    description: "The Bill & Melinda Gates Foundation seeks proposals for developing and piloting an AI-powered mobile app for early detection of crop diseases affecting rice and wheat in India and Bangladesh. The project should include a rigorous evaluation measuring adoption rates, diagnostic accuracy, and impact on crop yields."
-  },
-  {
-    title: "National Learning Assessment Design in Ethiopia",
-    source: "UNICEF", url: "#", published: "2026-02-27", deadline: "2026-03-25",
-    description: "UNICEF Ethiopia seeks a partner to support the Ministry of Education in designing and implementing a nationally representative learning assessment for Grades 4 and 8 covering literacy, numeracy, and digital skills."
-  },
-  {
-    title: "Enterprise Resource Planning System Implementation",
-    source: "UNGM", url: "#", published: "2026-02-23", deadline: "2026-03-10",
-    description: "The UN Office in Geneva seeks a firm to implement a SAP-based ERP system across administrative offices. Includes requirements gathering, customization, data migration, and training."
-  },
-  {
-    title: "Geospatial Mapping of WASH Infrastructure in Rural Zambia",
-    source: "FCDO", url: "#", published: "2026-02-26", deadline: "2026-03-30",
-    description: "FCDO Zambia is commissioning geospatial mapping of water and sanitation infrastructure in 5 rural provinces. Involves satellite imagery analysis, ground-truthing surveys, GIS platform development, and capacity building."
-  },
-  {
-    title: "M&E Framework for Digital Public Infrastructure in India",
-    source: "DevEx", url: "#", published: "2026-02-28", deadline: "2026-04-10",
-    description: "A major philanthropic funder seeks an organization to develop a comprehensive M&E framework for India's digital public infrastructure initiatives including Aadhaar-linked services, UPI adoption, and DigiLocker. Requires strong relationships with Indian government stakeholders."
-  },
-  {
-    title: "Climate-Smart Agriculture Policy Advisory in Rwanda",
-    source: "African Development Bank", url: "#", published: "2026-02-22", deadline: "2026-03-18",
-    description: "AfDB requests proposals for policy advisory on climate-smart agriculture strategies in Rwanda. Includes reviewing agricultural policies, cost-effectiveness analysis, stakeholder consultations, and producing a policy roadmap."
-  },
-  {
-    title: "Financial Inclusion Survey in Indonesia",
-    source: "Asian Development Bank", url: "#", published: "2026-02-25", deadline: "2026-03-28",
-    description: "ADB seeks a research organization to implement a nationally representative household survey on financial inclusion in Indonesia covering banking access, mobile money, microfinance, with focus on women and rural populations. ~15,000 households."
-  },
-  {
-    title: "Office Furniture Procurement for WHO Regional Office",
-    source: "UNGM", url: "#", published: "2026-02-27", deadline: "2026-03-05",
-    description: "WHO Regional Office for Africa is seeking suppliers for office furniture — desks, chairs, filing cabinets, and conference equipment for new premises in Brazzaville."
-  }
+  { title: "Impact Evaluation of Cash Transfer Program in Northern Nigeria", source: "World Bank", url: "https://projects.worldbank.org/en/projects-operations/procurement", published: "2026-02-26", deadline: "2026-03-20", description: "The World Bank invites expressions of interest for conducting a rigorous impact evaluation of the National Social Safety Net Program (NASSP) expansion in Northern Nigeria using mixed-methods including RCT design. Key outcomes: household consumption, food security, school enrollment, women's economic empowerment." },
+  { title: "AI-Powered Crop Disease Detection for Smallholder Farmers in South Asia", source: "Gates Foundation", url: "https://www.gatesfoundation.org/about/how-we-work/grant-opportunities", published: "2026-02-24", deadline: "2026-04-01", description: "The Bill & Melinda Gates Foundation seeks proposals for developing and piloting an AI-powered mobile app for early detection of crop diseases in India and Bangladesh with rigorous evaluation of adoption, accuracy, and yield impact." },
+  { title: "National Learning Assessment Design in Ethiopia", source: "UNICEF", url: "https://www.unicef.org/ethiopia/work-with-us", published: "2026-02-27", deadline: "2026-03-25", description: "UNICEF Ethiopia seeks a partner to support the Ministry of Education in designing and implementing a nationally representative learning assessment for Grades 4 and 8 covering literacy, numeracy, and digital skills." },
+  { title: "Enterprise Resource Planning System Implementation", source: "UNGM", url: "https://www.ungm.org/Public/Notice", published: "2026-02-23", deadline: "2026-03-10", description: "The UN Office in Geneva seeks a firm to implement a SAP-based ERP system. Includes requirements gathering, customization, data migration, and training." },
+  { title: "Geospatial Mapping of WASH Infrastructure in Rural Zambia", source: "FCDO", url: "https://www.contractsfinder.service.gov.uk/", published: "2026-02-26", deadline: "2026-03-30", description: "FCDO Zambia commissioning geospatial mapping of water and sanitation infrastructure in 5 rural provinces. Satellite imagery, ground-truthing, GIS platform, capacity building." },
+  { title: "M&E Framework for Digital Public Infrastructure in India", source: "DevEx", url: "https://www.devex.com/funding", published: "2026-02-28", deadline: "2026-04-10", description: "A major philanthropic funder seeks an organization to develop an M&E framework for India's digital public infrastructure including Aadhaar, UPI, DigiLocker. Requires Indian government relationships." },
+  { title: "Climate-Smart Agriculture Policy Advisory in Rwanda", source: "African Development Bank", url: "https://www.afdb.org/en/projects-and-operations/procurement", published: "2026-02-22", deadline: "2026-03-18", description: "AfDB requests proposals for policy advisory on climate-smart agriculture in Rwanda including policy review, cost-effectiveness analysis, stakeholder consultations, and policy roadmap." },
+  { title: "Financial Inclusion Survey in Indonesia", source: "Asian Development Bank", url: "https://www.adb.org/site/business-opportunities/operational-procurement", published: "2026-02-25", deadline: "2026-03-28", description: "ADB seeks a research org to implement a nationally representative household survey on financial inclusion in Indonesia: banking, mobile money, microfinance. ~15,000 households." },
+  { title: "Office Furniture Procurement for WHO Regional Office", source: "UNGM", url: "https://www.ungm.org/Public/Notice", published: "2026-02-27", deadline: "2026-03-05", description: "WHO Regional Office for Africa seeking suppliers for office furniture for new premises in Brazzaville." }
 ];
 
-// ============================================================
-// State
-// ============================================================
 let opportunities = [];
 let currentFilter = "ALL";
-let apiKeyValidated = false;
 
-// ============================================================
-// ReliefWeb API — fetch real opportunities
-// ============================================================
 async function fetchReliefWeb() {
-  const countries = ["India", "Kenya", "Ethiopia", "Nigeria", "Zambia", "Philippines", "Rwanda", "Uganda", "Ghana", "Senegal", "Bangladesh", "Indonesia", "Tanzania", "Morocco"];
-  const url = "https://api.reliefweb.int/v1/reports?appname=idinsight-opportunity-finder&preset=latest&limit=20&sort[]=date:desc&fields[include][]=title&fields[include][]=body&fields[include][]=url&fields[include][]=date.created&fields[include][]=country.name&fields[include][]=source.name&fields[include][]=theme.name";
-
   try {
+    const url = "https://api.reliefweb.int/v1/reports?appname=idinsight-finder&preset=latest&limit=20&sort[]=date:desc&fields[include][]=title&fields[include][]=body&fields[include][]=url&fields[include][]=date.created&fields[include][]=country.name&fields[include][]=source.name&fields[include][]=theme.name";
     const resp = await fetch(url);
-    if (!resp.ok) throw new Error("ReliefWeb API error");
+    if (!resp.ok) throw new Error("API error");
     const json = await resp.json();
-
     return (json.data || []).slice(0, 8).map(item => {
       const f = item.fields || {};
-      const countries_list = (f.country || []).map(c => c.name).join(", ");
-      const themes = (f.theme || []).map(t => t.name).join(", ");
-      const sources = (f.source || []).map(s => s.name).join(", ");
-      const bodySnippet = (f.body || "").replace(/<[^>]*>/g, "").slice(0, 500);
-
       return {
         title: f.title || "Untitled",
-        source: "ReliefWeb" + (sources ? " / " + sources.slice(0, 60) : ""),
-        url: (f.url || "#"),
-        published: (f.date || {}).created || new Date().toISOString().slice(0, 10),
+        source: "ReliefWeb" + ((f.source||[]).length ? " / " + (f.source||[]).map(s=>s.name).join(", ").slice(0,50) : ""),
+        url: f.url || "https://reliefweb.int",
+        published: (f.date||{}).created || new Date().toISOString().slice(0,10),
         deadline: null,
-        description: `Countries: ${countries_list}. Themes: ${themes}. ${bodySnippet}`
+        description: `Countries: ${(f.country||[]).map(c=>c.name).join(", ")}. Themes: ${(f.theme||[]).map(t=>t.name).join(", ")}. ${(f.body||"").replace(/<[^>]*>/g,"").slice(0,400)}`
       };
     });
-  } catch (e) {
-    console.warn("ReliefWeb fetch failed, using samples only:", e);
-    return [];
-  }
+  } catch(e) { console.warn("ReliefWeb failed:", e); return []; }
 }
 
-// ============================================================
-// Claude API — score opportunities
-// ============================================================
 async function scoreWithClaude(rawOpps) {
   const apiKey = document.getElementById("apiKey").value.trim();
-  if (!apiKey) throw new Error("No API key provided");
-
+  if (!apiKey) throw new Error("No API key");
   const resp = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-      "anthropic-dangerous-direct-browser-access": "true"
-    },
-    body: JSON.stringify({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 4096,
-      system: SYSTEM_PROMPT,
-      messages: [{
-        role: "user",
-        content: `Analyze these ${rawOpps.length} opportunities and score each for IDinsight relevance. Return ONLY valid JSON:\n\n${JSON.stringify(rawOpps)}`
-      }]
-    })
+    headers: { "Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
+    body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 4096, system: SYSTEM_PROMPT, messages: [{ role: "user", content: `Analyze these ${rawOpps.length} opportunities for IDinsight relevance. Return ONLY valid JSON:\n\n${JSON.stringify(rawOpps)}` }] })
   });
-
-  if (!resp.ok) {
-    const err = await resp.json().catch(() => ({}));
-    throw new Error(err.error?.message || `API error: ${resp.status}`);
-  }
-
+  if (!resp.ok) { const err = await resp.json().catch(()=>({})); throw new Error(err.error?.message || `API error: ${resp.status}`); }
   const data = await resp.json();
-  const text = (data.content || []).map(b => b.type === "text" ? b.text : "").join("");
-  const clean = text.replace(/```json|```/g, "").trim();
-  return JSON.parse(clean);
+  const text = (data.content||[]).map(b => b.type==="text" ? b.text : "").join("");
+  return JSON.parse(text.replace(/```json|```/g,"").trim());
 }
 
-// ============================================================
-// Main scan
-// ============================================================
 async function runScan() {
   const apiKey = document.getElementById("apiKey").value.trim();
-  if (!apiKey) {
-    showError("Please enter your Anthropic API key first.");
-    return;
-  }
-
+  if (!apiKey) { showError("Please enter your Anthropic API key first."); return; }
   const btn = document.getElementById("scanBtn");
-  btn.disabled = true;
-  btn.innerHTML = '<span class="loading-dot">●</span> Fetching from sources...';
-  hideError();
-
+  btn.disabled = true; btn.innerHTML = '<span class="loading-dot">&#9679;</span> Fetching from ReliefWeb...'; hideError();
   try {
-    // 1. Fetch real + sample data
-    btn.innerHTML = '<span class="loading-dot">●</span> Fetching from ReliefWeb API...';
-    const reliefWebOpps = await fetchReliefWeb();
-
-    const allRaw = [...reliefWebOpps, ...SAMPLE_OPPORTUNITIES];
-
-    // 2. Score with Claude
-    btn.innerHTML = '<span class="loading-dot">●</span> AI scoring ' + allRaw.length + ' opportunities...';
+    const rw = await fetchReliefWeb();
+    const allRaw = [...rw, ...SAMPLE_OPPORTUNITIES];
+    btn.innerHTML = '<span class="loading-dot">&#9679;</span> AI scoring ' + allRaw.length + ' opportunities...';
     const result = await scoreWithClaude(allRaw);
-
-    // 3. Sort and display
-    opportunities = (result.opportunities || []).sort((a, b) => b.relevance_score - a.relevance_score);
+    opportunities = (result.opportunities||[]).sort((a,b)=>b.relevance_score-a.relevance_score);
     renderResults();
-
     document.getElementById("lastScan").textContent = "Last scan: " + new Date().toLocaleTimeString();
-    btn.innerHTML = "↻ Rescan";
-  } catch (err) {
-    console.error(err);
-    showError("Scan failed: " + err.message);
-    btn.innerHTML = "▶ Scan Opportunities";
-  } finally {
-    btn.disabled = false;
-  }
+    btn.innerHTML = "&#8635; Rescan";
+  } catch(err) { showError("Scan failed: " + err.message); btn.innerHTML = "&#9654; Scan Opportunities"; }
+  finally { btn.disabled = false; }
 }
 
-// ============================================================
-// Rendering
-// ============================================================
 function renderResults() {
   document.getElementById("emptyState").classList.add("hidden");
   document.getElementById("resultsSection").classList.remove("hidden");
-
-  const pursue = opportunities.filter(o => o.recommended_action === "PURSUE").length;
-  const watch = opportunities.filter(o => o.recommended_action === "WATCH").length;
-  const skip = opportunities.filter(o => o.recommended_action === "SKIP").length;
-
-  // Stats
+  const p = opportunities.filter(o=>o.recommended_action==="PURSUE").length;
+  const w = opportunities.filter(o=>o.recommended_action==="WATCH").length;
+  const s = opportunities.filter(o=>o.recommended_action==="SKIP").length;
   document.getElementById("statsRow").innerHTML = [
-    { label: "Total Found", value: opportunities.length, color: "#60A5FA" },
-    { label: "Pursue", value: pursue, color: "#34D399" },
-    { label: "Watch", value: watch, color: "#FBBF24" },
-    { label: "Skip", value: skip, color: "#6B7280" }
-  ].map(s => `
-    <div class="stat-card">
-      <div class="stat-label">${s.label}</div>
-      <div class="stat-value" style="color:${s.color}">${s.value}</div>
-    </div>
-  `).join("");
-
-  // Filters
-  document.getElementById("filterBtns").innerHTML = ["ALL", "PURSUE", "WATCH", "SKIP"].map(f => `
-    <button class="filter-btn ${currentFilter === f ? 'active' : ''}" onclick="setFilter('${f}')">
-      ${f === "ALL" ? "All" : f.charAt(0) + f.slice(1).toLowerCase()}
-    </button>
-  `).join("");
-
+    {l:"Total",v:opportunities.length,c:"var(--idi-blue-4)"},{l:"Pursue",v:p,c:"var(--idi-green-light)"},{l:"Watch",v:w,c:"var(--idi-yellow-light)"},{l:"Skip",v:s,c:"var(--text-dim)"}
+  ].map(s=>`<div class="stat-card"><div class="stat-label">${s.l}</div><div class="stat-value" style="color:${s.c}">${s.v}</div></div>`).join("");
+  document.getElementById("filterBtns").innerHTML = ["ALL","PURSUE","WATCH","SKIP"].map(f=>
+    `<button class="filter-btn ${currentFilter===f?'active':''}" onclick="setFilter('${f}')">${f==="ALL"?"All":f.charAt(0)+f.slice(1).toLowerCase()}</button>`
+  ).join("");
   renderCards();
 }
 
 function renderCards() {
-  const filtered = currentFilter === "ALL"
-    ? opportunities
-    : opportunities.filter(o => o.recommended_action === currentFilter);
-
-  if (filtered.length === 0) {
-    document.getElementById("cardsContainer").innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-faint);">No opportunities match this filter.</div>';
-    return;
-  }
-
-  document.getElementById("cardsContainer").innerHTML = filtered.map((opp, idx) => {
-    const scoreColor = opp.relevance_score >= 75 ? "#34D399" : opp.relevance_score >= 50 ? "#FB923C" : opp.relevance_score >= 25 ? "#D4A574" : "#F87171";
-    const badgeClass = opp.recommended_action === "PURSUE" ? "badge-pursue" : opp.recommended_action === "WATCH" ? "badge-watch" : "badge-skip";
-    const days = opp.deadline ? Math.ceil((new Date(opp.deadline) - new Date()) / 864e5) : null;
-    const deadlineUrgent = days !== null && days < 14;
-    const deadlineStr = opp.deadline ? new Date(opp.deadline).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "TBD";
-    const pubStr = opp.published ? new Date(opp.published).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
-
-    const metrics = [
-      { label: "Geographic", val: opp.geographic_fit, max: 10 },
-      { label: "Sector", val: opp.sector_fit, max: 10 },
-      { label: "Service", val: opp.service_fit, max: 10 },
-      { label: "Funder", val: opp.funder_familiarity, max: 5 },
-      { label: "Strategic", val: opp.strategic_value, max: 5 }
-    ];
-
-    return `
-      <div class="opp-card fade-in" style="animation-delay:${idx * 50}ms" onclick="toggleDetail(${idx})">
-        <div class="opp-top">
-          <div style="flex:1">
-            <div class="opp-meta">
-              <span class="badge ${badgeClass}">${opp.recommended_action}</span>
-              <span class="chip">${opp.organization || ''}</span>
-              ${opp.country ? `<span class="chip">${opp.country}</span>` : ''}
-            </div>
-            <div class="opp-title">${opp.title}</div>
-          </div>
-          <div class="opp-score">
-            <div class="opp-score-num mono" style="color:${scoreColor}">${opp.relevance_score}</div>
-            <div class="opp-score-label mono">score</div>
-          </div>
-        </div>
-        <div class="opp-summary">${opp.summary || ''}</div>
-        <div class="opp-dates mono">
-          ${pubStr ? `<span>Published: ${pubStr}</span>` : ''}
-          <span class="${deadlineUrgent ? 'deadline-urgent' : ''}">Deadline: ${deadlineStr}${days !== null ? ` (${days}d)` : ''}</span>
-        </div>
-        <div class="opp-detail" id="detail-${idx}">
-          <div class="opp-rationale">"${opp.rationale || ''}"</div>
-          <div class="score-grid">
-            ${metrics.map(m => {
-              const pct = (m.val / m.max) * 100;
-              const color = pct > 70 ? "#34D399" : "#60A5FA";
-              return `
-                <div>
-                  <div class="score-item-header">
-                    <span class="stat-label">${m.label}</span>
-                    <span class="mono" style="font-size:12px;color:var(--text-secondary)">${m.val}/${m.max}</span>
-                  </div>
-                  <div class="score-bar">
-                    <div class="score-fill" style="width:${pct}%;background:linear-gradient(90deg,var(--blue),${color})"></div>
-                  </div>
-                </div>
-              `;
-            }).join("")}
-          </div>
-          ${(opp.key_requirements || []).length > 0 ? `
-            <div class="reqs-label stat-label">Key Requirements</div>
-            <div class="reqs-list">
-              ${opp.key_requirements.map(r => `<span class="req-chip">${r}</span>`).join("")}
-            </div>
-          ` : ''}
-        </div>
+  const filtered = currentFilter==="ALL" ? opportunities : opportunities.filter(o=>o.recommended_action===currentFilter);
+  if (!filtered.length) { document.getElementById("cardsContainer").innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-faint);font-size:13px;">No opportunities match this filter.</div>'; return; }
+  document.getElementById("cardsContainer").innerHTML = filtered.map((opp,idx) => {
+    const sc = opp.relevance_score>=75?"var(--idi-green-light)":opp.relevance_score>=50?"var(--idi-yellow-light)":opp.relevance_score>=25?"var(--idi-yellow-dark)":"#F87171";
+    const bc = opp.recommended_action==="PURSUE"?"badge-pursue":opp.recommended_action==="WATCH"?"badge-watch":"badge-skip";
+    const days = opp.deadline ? Math.ceil((new Date(opp.deadline)-new Date())/864e5) : null;
+    const dl = opp.deadline ? new Date(opp.deadline).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}) : "TBD";
+    const pub = opp.published ? new Date(opp.published).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}) : "";
+    const metrics = [{l:"Geographic",v:opp.geographic_fit,m:10},{l:"Sector",v:opp.sector_fit,m:10},{l:"Service",v:opp.service_fit,m:10},{l:"Funder",v:opp.funder_familiarity,m:5},{l:"Strategic",v:opp.strategic_value,m:5}];
+    const urlDisplay = opp.url && opp.url !== "#" ? `<a href="${opp.url}" target="_blank" rel="noopener" class="opp-link" onclick="event.stopPropagation();">&#128279; View source &rarr;</a>` : '';
+    return `<div class="opp-card fade-in" style="animation-delay:${idx*40}ms" onclick="toggleDetail(${idx})">
+      <div class="opp-top"><div style="flex:1">
+        <div class="opp-meta"><span class="badge ${bc}">${opp.recommended_action}</span><span class="chip">${opp.organization||''}</span>${opp.country?`<span class="chip">${opp.country}</span>`:''}</div>
+        <div class="opp-title">${opp.title}</div>
+      </div><div class="opp-score"><div class="opp-score-num mono" style="color:${sc}">${opp.relevance_score}</div><div class="opp-score-label">score</div></div></div>
+      <div class="opp-summary">${opp.summary||''}</div>
+      <div class="opp-dates mono">${pub?`<span>Published: ${pub}</span>`:''}<span class="${days!==null&&days<14?'deadline-urgent':''}">Deadline: ${dl}${days!==null?` (${days}d)`:''}</span></div>
+      <div class="opp-detail" id="detail-${idx}">
+        <div class="opp-rationale">"${opp.rationale||''}"</div>
+        <div class="score-grid">${metrics.map(m=>{const p=(m.v/m.m)*100;return `<div><div class="score-item-header"><span class="stat-label">${m.l}</span><span class="mono" style="font-size:11px;color:var(--text-secondary)">${m.v}/${m.m}</span></div><div class="score-bar"><div class="score-fill" style="width:${p}%;background:linear-gradient(90deg,var(--idi-dark-blue),${p>70?'var(--idi-green-light)':'var(--idi-blue-4)'})"></div></div></div>`;}).join("")}</div>
+        ${(opp.key_requirements||[]).length?`<div class="stat-label" style="margin-bottom:4px;">Key Requirements</div><div class="reqs-list">${opp.key_requirements.map(r=>`<span class="req-chip">${r}</span>`).join("")}</div>`:''}
+        ${urlDisplay}
       </div>
-    `;
+    </div>`;
   }).join("");
 }
 
-function setFilter(f) {
-  currentFilter = f;
-  renderResults();
-}
+function setFilter(f) { currentFilter=f; renderResults(); }
+function toggleDetail(i) { const el=document.getElementById("detail-"+i); if(el) el.classList.toggle("open"); }
+function toggleSources() { const g=document.getElementById("sourcesGrid"); const a=document.getElementById("sourcesArrow"); g.classList.toggle("hidden"); a.style.transform=g.classList.contains("hidden")?"none":"rotate(90deg)"; }
 
-function toggleDetail(idx) {
-  const el = document.getElementById("detail-" + idx);
-  if (el) el.classList.toggle("open");
-}
-
-function toggleSources() {
-  const grid = document.getElementById("sourcesGrid");
-  const arrow = document.getElementById("sourcesArrow");
-  grid.classList.toggle("hidden");
-  arrow.style.transform = grid.classList.contains("hidden") ? "none" : "rotate(90deg)";
-}
-
-// ============================================================
-// API Key validation
-// ============================================================
 async function validateKey() {
   const key = document.getElementById("apiKey").value.trim();
-  const statusEl = document.getElementById("keyStatus");
-  if (!key) {
-    statusEl.innerHTML = '<span class="status-dot red"></span> <span class="status-text">Enter a key</span>';
-    return;
-  }
-  statusEl.innerHTML = '<span class="status-text">Checking...</span>';
-
+  const s = document.getElementById("keyStatus");
+  if (!key) { s.innerHTML='<span class="status-dot red"></span> <span class="status-text">Enter a key</span>'; return; }
+  s.innerHTML='<span class="status-text">Checking...</span>';
   try {
-    const resp = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": key,
-        "anthropic-version": "2023-06-01",
-        "anthropic-dangerous-direct-browser-access": "true"
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 10,
-        messages: [{ role: "user", content: "Say ok" }]
-      })
-    });
-
-    if (resp.ok) {
-      statusEl.innerHTML = '<span class="status-dot green"></span> <span class="status-text">Key valid</span>';
-      apiKeyValidated = true;
-    } else {
-      const err = await resp.json().catch(() => ({}));
-      statusEl.innerHTML = '<span class="status-dot red"></span> <span class="status-text">' + (err.error?.message || 'Invalid key') + '</span>';
-    }
-  } catch (e) {
-    statusEl.innerHTML = '<span class="status-dot red"></span> <span class="status-text">Connection error</span>';
-  }
+    const r = await fetch("https://api.anthropic.com/v1/messages", { method:"POST", headers:{"Content-Type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"}, body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:10,messages:[{role:"user",content:"Say ok"}]}) });
+    if (r.ok) s.innerHTML='<span class="status-dot green"></span> <span class="status-text">Key valid</span>';
+    else { const e=await r.json().catch(()=>({})); s.innerHTML='<span class="status-dot red"></span> <span class="status-text">'+(e.error?.message||'Invalid')+'</span>'; }
+  } catch(e) { s.innerHTML='<span class="status-dot red"></span> <span class="status-text">Connection error</span>'; }
 }
 
-// ============================================================
-// Slack webhook
-// ============================================================
 async function sendToSlack() {
-  const webhook = document.getElementById("slackWebhook").value.trim();
-  if (!webhook) {
-    alert("Please enter a Slack webhook URL first.");
-    return;
-  }
-  if (opportunities.length === 0) {
-    alert("Run a scan first.");
-    return;
-  }
-
-  const btn = document.getElementById("slackSendBtn");
-  btn.disabled = true;
-  btn.innerHTML = '<span class="loading-dot">●</span> Sending...';
-
-  const pursue = opportunities.filter(o => o.recommended_action === "PURSUE");
-  const watch = opportunities.filter(o => o.recommended_action === "WATCH");
-  const today = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
-
-  let text = `📋 *IDinsight Opportunity Digest — ${today}*\n\nFound *${pursue.length}* high-priority and *${watch.length}* watch-list opportunities.\n\n`;
-
-  if (pursue.length > 0) {
-    text += `🟢 *PURSUE — High Priority*\n`;
-    pursue.forEach((o, i) => {
-      const days = o.deadline ? Math.ceil((new Date(o.deadline) - new Date()) / 864e5) : null;
-      text += `\n*${i + 1}. ${o.title}*\n`;
-      text += `   Funder: ${o.organization} | Score: ${o.relevance_score}/100${days !== null ? ` | ⏰ ${days} days` : ''}\n`;
-      text += `   ${o.summary}\n`;
-      text += `   _${o.rationale}_\n`;
-    });
-  }
-
-  if (watch.length > 0) {
-    text += `\n\n🟡 *WATCH — Monitor*\n`;
-    watch.forEach((o, i) => {
-      text += `\n*${i + 1}. ${o.title}*\n`;
-      text += `   ${o.organization} | Score: ${o.relevance_score}/100\n`;
-    });
-  }
-
-  text += `\n\n_Generated by IDinsight Client Opportunity Finder_`;
-
+  const wh = document.getElementById("slackWebhook").value.trim();
+  if (!wh) { alert("Paste a Slack webhook URL first. Click 'How do I get a Slack webhook URL?' for instructions."); return; }
+  if (!opportunities.length) { alert("Run a scan first."); return; }
+  const btn=document.getElementById("slackSendBtn"); btn.disabled=true; btn.innerHTML='<span class="loading-dot">&#9679;</span> Sending...';
+  const pursue=opportunities.filter(o=>o.recommended_action==="PURSUE");
+  const watch=opportunities.filter(o=>o.recommended_action==="WATCH");
+  const today=new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"});
+  let text=`\ud83d\udccb *IDinsight Opportunity Digest \u2014 ${today}*\n\nFound *${pursue.length}* high-priority and *${watch.length}* watch-list opportunities.\n\n`;
+  if (pursue.length) { text+=`\ud83d\udfe2 *PURSUE*\n`; pursue.forEach((o,i)=>{ const d=o.deadline?Math.ceil((new Date(o.deadline)-new Date())/864e5):null; text+=`\n*${i+1}. ${o.title}*\n   ${o.organization} | Score: ${o.relevance_score}/100${d!==null?` | \u23f0 ${d}d`:''}\n   ${o.summary}\n   _${o.rationale}_\n   ${o.url&&o.url!=='#'?o.url:''}\n`; }); }
+  if (watch.length) { text+=`\n\ud83d\udfe1 *WATCH*\n`; watch.forEach((o,i)=>{ text+=`\n*${i+1}. ${o.title}*\n   ${o.organization} | ${o.relevance_score}/100\n   ${o.url&&o.url!=='#'?o.url:''}\n`; }); }
+  text+=`\n_Generated by IDinsight Client Opportunity Finder_`;
   try {
-    // Slack webhooks require a proxy due to CORS, so we use the Claude API to relay
-    const apiKey = document.getElementById("apiKey").value.trim();
-    // Direct webhook call (works if CORS isn't blocked — e.g. from a server/script)
-    // For browser demo, we attempt direct and fall back to showing the message
-
-    const resp = await fetch(webhook, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text }),
-      mode: "no-cors" // Slack webhooks don't return CORS headers
-    });
-
-    // no-cors means we can't read the response, but if it didn't throw, it likely worked
-    document.getElementById("slackStatus").innerHTML = '<span class="status-dot green"></span> <span class="status-text">Digest sent! Check your Slack channel.</span>';
-  } catch (e) {
-    console.error("Slack error:", e);
-    document.getElementById("slackStatus").innerHTML = '<span class="status-dot yellow"></span> <span class="status-text">CORS blocked in browser. Use the cron/server method for production delivery. Message copied to clipboard.</span>';
-    // Copy to clipboard as fallback
-    try { await navigator.clipboard.writeText(text.replace(/\*/g, "").replace(/_/g, "")); } catch(ce) {}
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zM8.834 6.313a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zM18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zM17.688 8.834a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312zM15.165 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zM15.165 17.688a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z"/></svg> Post to Slack`;
-  }
+    await fetch(wh, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({text}), mode:"no-cors" });
+    document.getElementById("slackStatus").innerHTML='<span class="status-dot green"></span> <span class="status-text">Digest sent! Check Slack.</span>';
+  } catch(e) {
+    document.getElementById("slackStatus").innerHTML='<span class="status-dot red"></span> <span class="status-text">Send failed. Try from a server context.</span>';
+    try { await navigator.clipboard.writeText(text.replace(/\*/g,"").replace(/_/g,"")); } catch(ce){}
+  } finally { btn.disabled=false; btn.innerHTML='<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313z"/></svg> Post to Slack'; }
 }
 
-// ============================================================
-// PDF Download
-// ============================================================
 function downloadPDF() {
-  if (opportunities.length === 0) return;
-
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-  const pageW = doc.internal.pageSize.getWidth();
-  const margin = 20;
-  const contentW = pageW - margin * 2;
-  let y = 20;
-
-  const addPage = () => { doc.addPage(); y = 20; };
-  const checkPage = (needed) => { if (y + needed > 270) addPage(); };
-
-  // Title
-  doc.setFontSize(20);
-  doc.setFont("helvetica", "bold");
-  doc.text("IDinsight Opportunity Digest", margin, y);
-  y += 8;
-
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "normal");
-  doc.setTextColor(120);
-  doc.text(new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" }), margin, y);
-  y += 5;
-  doc.text("Generated by IDinsight Client Opportunity Finder", margin, y);
-  y += 10;
-
-  // Summary
-  const pursue = opportunities.filter(o => o.recommended_action === "PURSUE");
-  const watch = opportunities.filter(o => o.recommended_action === "WATCH");
-
-  doc.setTextColor(0);
-  doc.setFontSize(11);
-  doc.setFont("helvetica", "bold");
-  doc.text(`Summary: ${pursue.length} high-priority, ${watch.length} watch-list, ${opportunities.length} total opportunities`, margin, y);
-  y += 8;
-
-  // Line
-  doc.setDrawColor(200);
-  doc.line(margin, y, pageW - margin, y);
-  y += 8;
-
-  // Each opportunity
-  opportunities.forEach((opp, idx) => {
-    checkPage(45);
-
-    // Action badge
-    doc.setFontSize(8);
-    doc.setFont("helvetica", "bold");
-    const badgeColor = opp.recommended_action === "PURSUE" ? [5, 150, 105] : opp.recommended_action === "WATCH" ? [217, 119, 6] : [107, 114, 128];
-    doc.setTextColor(...badgeColor);
-    doc.text(opp.recommended_action, margin, y);
-
-    // Score
-    doc.setTextColor(0);
-    doc.text(`Score: ${opp.relevance_score}/100`, pageW - margin - 25, y);
-    y += 5;
-
-    // Title
-    doc.setFontSize(11);
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(30);
-    const titleLines = doc.splitTextToSize(`${idx + 1}. ${opp.title}`, contentW);
-    doc.text(titleLines, margin, y);
-    y += titleLines.length * 5;
-
-    // Org + deadline
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(100);
-    const deadlineStr = opp.deadline ? new Date(opp.deadline).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "TBD";
-    doc.text(`${opp.organization || ''} | ${opp.country || ''} | Deadline: ${deadlineStr}`, margin, y);
-    y += 5;
-
-    // Summary
-    doc.setTextColor(60);
-    const sumLines = doc.splitTextToSize(opp.summary || '', contentW);
-    doc.text(sumLines, margin, y);
-    y += sumLines.length * 4.5;
-
-    // Rationale
-    if (opp.rationale) {
-      doc.setFont("helvetica", "italic");
-      doc.setTextColor(100);
-      const ratLines = doc.splitTextToSize(opp.rationale, contentW);
-      doc.text(ratLines, margin, y);
-      y += ratLines.length * 4.5;
+  if (!opportunities.length) return;
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:"portrait",unit:"mm",format:"a4"});
+  const pw=doc.internal.pageSize.getWidth(), m=18, cw=pw-m*2;
+  let y=18;
+  const addPg=()=>{doc.addPage();y=18;};
+  const ck=(n)=>{if(y+n>270)addPg();};
+  doc.setFontSize(18); doc.setFont("helvetica","bold");
+  doc.text("IDinsight Opportunity Digest",m,y); y+=7;
+  doc.setFontSize(9); doc.setFont("helvetica","normal"); doc.setTextColor(120);
+  doc.text(new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"}),m,y); y+=4;
+  doc.text("Generated by IDinsight Client Opportunity Finder | Kuber Bathla",m,y); y+=8;
+  const pu=opportunities.filter(o=>o.recommended_action==="PURSUE");
+  const wa=opportunities.filter(o=>o.recommended_action==="WATCH");
+  doc.setTextColor(0); doc.setFontSize(10); doc.setFont("helvetica","bold");
+  doc.text(`Summary: ${pu.length} high-priority, ${wa.length} watch-list, ${opportunities.length} total`,m,y); y+=7;
+  doc.setDrawColor(200); doc.line(m,y,pw-m,y); y+=6;
+  opportunities.forEach((opp,idx)=>{
+    ck(42);
+    const bc=opp.recommended_action==="PURSUE"?[15,77,66]:opp.recommended_action==="WATCH"?[212,158,0]:[107,114,128];
+    doc.setFontSize(8); doc.setFont("helvetica","bold"); doc.setTextColor(...bc);
+    doc.text(opp.recommended_action,m,y);
+    doc.setTextColor(0); doc.text(`Score: ${opp.relevance_score}/100`,pw-m-22,y); y+=4;
+    doc.setFontSize(10); doc.setFont("helvetica","bold"); doc.setTextColor(30);
+    const tl=doc.splitTextToSize(`${idx+1}. ${opp.title}`,cw); doc.text(tl,m,y); y+=tl.length*4.5;
+    doc.setFontSize(8); doc.setFont("helvetica","normal"); doc.setTextColor(100);
+    const dl=opp.deadline?new Date(opp.deadline).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}):"TBD";
+    doc.text(`${opp.organization||''} | ${opp.country||''} | Deadline: ${dl}`,m,y); y+=4;
+    // Source link
+    if (opp.url && opp.url !== '#') {
+      doc.setTextColor(38,77,150);
+      const urlText = opp.url.length > 70 ? opp.url.slice(0,70) + '...' : opp.url;
+      doc.textWithLink(urlText, m, y, { url: opp.url }); y+=4;
     }
-
-    // Scores row
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(8);
-    doc.setTextColor(120);
-    doc.text(`Geo: ${opp.geographic_fit}/10  Sector: ${opp.sector_fit}/10  Service: ${opp.service_fit}/10  Funder: ${opp.funder_familiarity}/5  Strategic: ${opp.strategic_value}/5`, margin, y);
-    y += 6;
-
-    // Separator
-    doc.setDrawColor(230);
-    doc.line(margin, y, pageW - margin, y);
-    y += 6;
+    doc.setTextColor(60); doc.setFontSize(8);
+    const sl=doc.splitTextToSize(opp.summary||'',cw); doc.text(sl,m,y); y+=sl.length*4;
+    if(opp.rationale){doc.setFont("helvetica","italic");doc.setTextColor(100);const rl=doc.splitTextToSize(opp.rationale,cw);doc.text(rl,m,y);y+=rl.length*4;}
+    doc.setFont("helvetica","normal"); doc.setFontSize(7); doc.setTextColor(120);
+    doc.text(`Geo: ${opp.geographic_fit}/10  Sector: ${opp.sector_fit}/10  Service: ${opp.service_fit}/10  Funder: ${opp.funder_familiarity}/5  Strategic: ${opp.strategic_value}/5`,m,y); y+=5;
+    doc.setDrawColor(230); doc.line(m,y,pw-m,y); y+=5;
   });
-
-  doc.save("IDinsight_Opportunity_Digest_" + new Date().toISOString().slice(0, 10) + ".pdf");
+  doc.save("IDinsight_Opportunity_Digest_"+new Date().toISOString().slice(0,10)+".pdf");
 }
 
-// ============================================================
-// Utils
-// ============================================================
-function showError(msg) {
-  const el = document.getElementById("errorBox");
-  el.textContent = msg;
-  el.classList.remove("hidden");
-}
-function hideError() {
-  document.getElementById("errorBox").classList.add("hidden");
-}
+function showError(msg){const e=document.getElementById("errorBox");e.textContent=msg;e.classList.remove("hidden");}
+function hideError(){document.getElementById("errorBox").classList.add("hidden");}
 </script>
 </body>
 </html>
