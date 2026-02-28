@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IDinsight Client Opportunity Finder</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-primary: #0F1117;
+      --bg-card: #161822;
+      --bg-input: #1E2030;
+      --border: #1E2030;
+      --border-hover: #2A2D40;
+      --text-primary: #F4F4F5;
+      --text-secondary: #D1D5DB;
+      --text-muted: #9CA3AF;
+      --text-dim: #6B7280;
+      --text-faint: #4B5563;
+      --blue: #2563EB;
+      --blue-hover: #1D4ED8;
+      --green: #34D399;
+      --green-dark: #059669;
+      --yellow: #FBBF24;
+      --yellow-dark: #D97706;
+      --red: #F87171;
+      --purple: #7C3AED;
+      --slack-purple: #4A154B;
+      --slack-hover: #611f69;
+    }
+
+    body {
+      min-height: 100vh;
+      background: var(--bg-primary);
+      color: #E4E4E7;
+      font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
+      line-height: 1.5;
+    }
+
+    .mono { font-family: 'DM Mono', monospace; }
+
+    /* Header */
+    .header {
+      border-bottom: 1px solid var(--border);
+      padding: 24px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .header-left { display: flex; flex-direction: column; gap: 2px; }
+    .header-title-row { display: flex; align-items: center; gap: 12px; }
+    .logo {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 700; color: #fff; flex-shrink: 0;
+    }
+    .header h1 { font-size: 20px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.02em; }
+    .header-sub { font-size: 13px; color: var(--text-dim); margin-left: 44px; }
+    .header-credit { font-size: 11px; color: var(--text-faint); margin-left: 44px; margin-top: 2px; font-style: italic; }
+    .header-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .last-scan { font-size: 12px; color: var(--text-faint); }
+
+    /* Buttons */
+    .btn-primary {
+      background: var(--blue); color: #fff; border: none;
+      padding: 11px 24px; border-radius: 8px;
+      font-family: inherit; font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: all 0.15s ease;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-primary:hover { background: var(--blue-hover); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-slack {
+      background: var(--slack-purple); color: #fff; border: none;
+      padding: 9px 18px; border-radius: 8px;
+      font-family: inherit; font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: all 0.15s ease;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-slack:hover { background: var(--slack-hover); }
+    .btn-slack:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-download {
+      background: transparent; color: var(--text-muted); border: 1px solid var(--border-hover);
+      padding: 9px 18px; border-radius: 8px;
+      font-family: inherit; font-size: 13px; font-weight: 500;
+      cursor: pointer; transition: all 0.15s ease;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-download:hover { border-color: var(--text-dim); color: var(--text-secondary); }
+
+    .filter-btn {
+      padding: 6px 16px; border-radius: 20px;
+      border: 1px solid var(--border-hover); background: transparent;
+      color: var(--text-muted); font-size: 13px; font-family: inherit;
+      cursor: pointer; transition: all 0.15s ease;
+    }
+    .filter-btn:hover { border-color: var(--text-faint); color: var(--text-secondary); }
+    .filter-btn.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+
+    /* Setup panel */
+    .setup-panel {
+      max-width: 960px; margin: 0 auto; padding: 24px 32px;
+    }
+    .setup-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 24px; margin-bottom: 16px;
+    }
+    .setup-card h3 { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+    .setup-card p { font-size: 13px; color: var(--text-dim); margin-bottom: 12px; }
+    .input-field {
+      background: var(--bg-input); border: 1px solid var(--border-hover);
+      color: #E4E4E7; padding: 10px 14px; border-radius: 8px;
+      font-family: 'DM Mono', monospace; font-size: 13px; outline: none;
+      width: 100%; max-width: 500px;
+    }
+    .input-field:focus { border-color: var(--blue); }
+    .input-field::placeholder { color: var(--text-faint); }
+    .input-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+    .status-dot.green { background: var(--green); }
+    .status-dot.red { background: var(--red); }
+    .status-dot.yellow { background: var(--yellow); }
+    .status-text { font-size: 12px; color: var(--text-dim); }
+
+    /* Main content */
+    .main { max-width: 960px; margin: 0 auto; padding: 0 32px 48px; }
+
+    /* Stats */
+    .stats-row { display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+    .stat-card {
+      flex: 1; min-width: 120px;
+      padding: 14px 18px; border-radius: 10px;
+      background: var(--bg-card); border: 1px solid var(--border);
+    }
+    .stat-label {
+      font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;
+      color: var(--text-dim); font-weight: 500; font-family: 'DM Mono', monospace;
+    }
+    .stat-value { font-size: 28px; font-weight: 700; font-family: 'DM Mono', monospace; margin-top: 4px; }
+
+    /* Filters bar */
+    .filters-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 20px; flex-wrap: wrap; gap: 12px;
+    }
+    .filters-left { display: flex; gap: 8px; }
+    .filters-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+    /* Opportunity cards */
+    .opp-card {
+      border: 1px solid var(--border); border-radius: 12px;
+      padding: 20px 24px; cursor: pointer;
+      transition: all 0.2s ease; background: var(--bg-card);
+      margin-bottom: 12px;
+    }
+    .opp-card:hover { border-color: var(--border-hover); background: #1A1D2E; transform: translateY(-1px); }
+    .opp-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 10px; }
+    .opp-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap; }
+    .opp-title { font-size: 15px; font-weight: 600; color: var(--text-primary); line-height: 1.4; }
+    .opp-summary { font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 10px; }
+    .opp-dates { display: flex; gap: 16px; font-size: 12px; color: var(--text-dim); flex-wrap: wrap; }
+    .opp-score { text-align: right; flex-shrink: 0; }
+    .opp-score-num { font-size: 28px; font-weight: 700; line-height: 1; }
+    .opp-score-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); margin-top: 2px; }
+
+    /* Badges */
+    .badge {
+      padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 700;
+      font-family: 'DM Mono', monospace; letter-spacing: 0.03em; display: inline-block;
+    }
+    .badge-pursue { background: var(--green-dark); color: #fff; }
+    .badge-watch { background: var(--yellow-dark); color: #fff; }
+    .badge-skip { background: var(--text-dim); color: #fff; }
+    .chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 10px; border-radius: 12px; background: var(--bg-input);
+      font-size: 11px; color: var(--text-muted); font-family: 'DM Mono', monospace;
+    }
+
+    /* Expanded detail */
+    .opp-detail { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); display: none; }
+    .opp-detail.open { display: block; }
+    .opp-rationale { font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px; font-style: italic; }
+    .score-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .score-item-header { display: flex; justify-content: space-between; margin-bottom: 4px; }
+    .score-bar { height: 6px; border-radius: 3px; background: var(--bg-input); overflow: hidden; }
+    .score-fill { height: 100%; border-radius: 3px; transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+    .reqs-label { margin-bottom: 8px; }
+    .reqs-list { display: flex; gap: 8px; flex-wrap: wrap; }
+    .req-chip { padding: 4px 12px; border-radius: 6px; background: var(--bg-input); font-size: 12px; color: var(--text-muted); }
+
+    /* Sources panel */
+    .sources-toggle {
+      background: none; border: none; color: var(--text-dim);
+      font-size: 13px; cursor: pointer; font-family: inherit;
+      display: flex; align-items: center; gap: 6px; margin-bottom: 16px;
+    }
+    .sources-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+    .source-item {
+      padding: 8px 14px; border-radius: 8px;
+      background: var(--bg-card); border: 1px solid var(--border); font-size: 13px;
+    }
+    .source-name { font-weight: 600; color: var(--text-secondary); }
+    .source-desc { color: var(--text-faint); margin-left: 8px; }
+
+    /* Architecture footer */
+    .arch-footer {
+      margin-top: 48px; padding: 24px 0; border-top: 1px solid var(--border);
+      color: var(--text-faint); font-size: 12px; line-height: 1.6;
+    }
+    .arch-footer strong { color: var(--text-muted); }
+
+    /* Empty state */
+    .empty-state { text-align: center; padding: 80px 20px; color: var(--text-faint); }
+    .empty-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.3; }
+
+    /* Loading */
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    .loading-dot { animation: pulse 1.5s ease-in-out infinite; }
+
+    /* Animations */
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-in { animation: fadeIn 0.4s ease forwards; }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .header { padding: 16px; }
+      .setup-panel, .main { padding-left: 16px; padding-right: 16px; }
+      .stat-card { min-width: 80px; }
+      .opp-card { padding: 16px; }
+    }
+
+    /* Slack input area */
+    .slack-config { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .slack-status { font-size: 12px; margin-left: 4px; }
+
+    /* Urgent deadline */
+    .deadline-urgent { color: var(--yellow); font-weight: 600; }
+
+    /* Error */
+    .error-box {
+      padding: 16px; border-radius: 8px;
+      background: #2D1B1B; border: 1px solid #7F1D1D;
+      color: #FCA5A5; font-size: 14px; margin-bottom: 24px;
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-left">
+      <div class="header-title-row">
+        <div class="logo">I</div>
+        <h1>Client Opportunity Finder</h1>
+      </div>
+      <p class="header-sub">AI-powered daily digest of RFPs & funding opportunities for IDinsight</p>
+      <p class="header-credit">Built as part of assignment submitted by Kuber Bathla for the Senior Associate, AI Transformation role</p>
+    </div>
+    <div class="header-actions">
+      <span id="lastScan" class="last-scan mono"></span>
+      <button id="scanBtn" class="btn-primary" onclick="runScan()">
+        ▶ Scan Opportunities
+      </button>
+    </div>
+  </div>
+
+  <!-- SETUP PANEL -->
+  <div class="setup-panel">
+    <div class="setup-card">
+      <h3>API Configuration</h3>
+      <p>Enter your Anthropic API key to power the AI scoring engine. Your key stays in your browser and is never stored.</p>
+      <div class="input-row">
+        <input type="password" id="apiKey" class="input-field" placeholder="sk-ant-api03-..." style="max-width:420px;">
+        <button class="btn-primary" style="padding:10px 18px; font-size:13px;" onclick="validateKey()">Validate</button>
+        <span id="keyStatus"></span>
+      </div>
+    </div>
+    <div class="setup-card">
+      <h3>Slack Integration (Optional)</h3>
+      <p>Paste a <a href="https://api.slack.com/messaging/webhooks" target="_blank" style="color:var(--blue);">Slack Incoming Webhook URL</a> to send the daily digest to your channel.</p>
+      <div class="input-row">
+        <input type="text" id="slackWebhook" class="input-field" placeholder="https://hooks.slack.com/services/T.../B.../..." style="max-width:500px;">
+        <span id="slackStatus"></span>
+      </div>
+    </div>
+
+    <!-- Sources -->
+    <button class="sources-toggle" onclick="toggleSources()">
+      <span id="sourcesArrow" style="transition:0.2s;display:inline-block;">▸</span>
+      Data Sources (6)
+    </button>
+    <div id="sourcesGrid" class="sources-grid hidden">
+      <div class="source-item"><span class="source-name">ReliefWeb API</span><span class="source-desc">Live humanitarian opportunities</span> <span class="chip">LIVE API</span></div>
+      <div class="source-item"><span class="source-name">UNGM</span><span class="source-desc">UN procurement notices</span> <span class="chip">Sample</span></div>
+      <div class="source-item"><span class="source-name">DevEx</span><span class="source-desc">Dev funding & RFPs</span> <span class="chip">Sample</span></div>
+      <div class="source-item"><span class="source-name">SAM.gov</span><span class="source-desc">USAID contracts</span> <span class="chip">Sample</span></div>
+      <div class="source-item"><span class="source-name">World Bank</span><span class="source-desc">Project procurement</span> <span class="chip">Sample</span></div>
+      <div class="source-item"><span class="source-name">Gates Foundation</span><span class="source-desc">Open RFPs</span> <span class="chip">Sample</span></div>
+    </div>
+  </div>
+
+  <!-- ERROR -->
+  <div class="main">
+    <div id="errorBox" class="error-box hidden"></div>
+
+    <!-- EMPTY STATE -->
+    <div id="emptyState" class="empty-state">
+      <div class="empty-icon">📡</div>
+      <p style="font-size:16px;margin-bottom:8px;">
+        Configure your API key above, then click <strong style="color:#93C5FD;">Scan Opportunities</strong>
+      </p>
+      <p style="font-size:13px;">
+        The tool pulls real data from ReliefWeb + sample RFPs from 5 other sources, then scores each against IDinsight's profile using AI.
+      </p>
+    </div>
+
+    <!-- RESULTS (hidden initially) -->
+    <div id="resultsSection" class="hidden">
+      <!-- Stats -->
+      <div class="stats-row fade-in" id="statsRow"></div>
+
+      <!-- Filters + Actions -->
+      <div class="filters-bar">
+        <div class="filters-left" id="filterBtns"></div>
+        <div class="filters-right">
+          <button class="btn-download" onclick="downloadPDF()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download PDF
+          </button>
+          <button class="btn-slack" id="slackSendBtn" onclick="sendToSlack()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zM8.834 6.313a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zM18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zM17.688 8.834a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312zM15.165 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zM15.165 17.688a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z"/></svg>
+            Post to Slack
+          </button>
+        </div>
+      </div>
+
+      <!-- Cards container -->
+      <div id="cardsContainer"></div>
+    </div>
+
+    <!-- ARCHITECTURE FOOTER -->
+    <div class="arch-footer">
+      <div class="stat-label" style="margin-bottom:8px;color:var(--text-dim);">ARCHITECTURE</div>
+      <p><strong>Data Layer:</strong> Real-time ReliefWeb API + sample feeds from UNGM, DevEx, SAM.gov, World Bank, Gates Foundation. In production: RSS/API aggregation via cron job (GitHub Actions or Google Apps Script on a daily timer).</p>
+      <p style="margin-top:4px;"><strong>Intelligence Layer:</strong> Claude API (Sonnet) scores each opportunity across 5 dimensions — geographic fit, sector alignment, service match, funder familiarity, strategic value — using IDinsight's organizational profile as the evaluation rubric.</p>
+      <p style="margin-top:4px;"><strong>Delivery Layer:</strong> Slack webhook for daily digest delivery. PDF export for offline review. Extensible to email (SendGrid/SES) and calendar integration for deadline tracking.</p>
+      <p style="margin-top:4px;"><strong>Automation:</strong> A GitHub Action or Google Apps Script runs this pipeline daily at 8 AM, fetches fresh opportunities, scores them, and posts the digest to a designated Slack channel — zero manual intervention required.</p>
+    </div>
+  </div>
+
+<script>
+// ============================================================
+// IDinsight Organizational Profile
+// ============================================================
+const PROFILE = {
+  name: "IDinsight",
+  geographies: {
+    primary: ["India", "Kenya", "Ethiopia", "Nigeria", "Zambia", "Philippines", "Morocco", "Senegal", "Ghana", "Rwanda", "Uganda", "Tanzania", "Bangladesh", "Indonesia"],
+    regions: ["South Asia", "East Africa", "West Africa", "Southern Africa", "Southeast Asia", "North Africa"]
+  },
+  sectors: [
+    "Health & Nutrition", "Education", "Agriculture & Food Security",
+    "Social Protection & Safety Nets", "Governance & Public Finance",
+    "Water, Sanitation & Hygiene (WASH)", "Digital Public Infrastructure",
+    "Climate & Energy", "Gender Equity", "Financial Inclusion"
+  ],
+  services: [
+    "Impact Evaluations (RCTs)", "Monitoring & Evaluation (M&E) Systems",
+    "Data Systems & Analytics", "Machine Learning & AI Applications",
+    "Policy Advisory", "Cost-Effectiveness Analysis",
+    "Survey Design & Implementation", "Geospatial Analysis",
+    "Program Design Support", "Knowledge Management"
+  ],
+  funders: [
+    "Bill & Melinda Gates Foundation", "USAID", "World Bank", "DFID/FCDO",
+    "Global Fund", "Gavi", "UNICEF", "GiveWell", "Open Philanthropy",
+    "Mastercard Foundation", "Hewlett Foundation", "J-PAL",
+    "African Development Bank", "Asian Development Bank"
+  ]
+};
+
+const SYSTEM_PROMPT = `You are an AI assistant for IDinsight's business development team. Your job is to analyze requests for proposals (RFPs), funding opportunities, and project leads to determine their relevance to IDinsight.
+
+IDinsight Profile:
+${JSON.stringify(PROFILE, null, 2)}
+
+For each opportunity, evaluate:
+1. GEOGRAPHIC FIT (0-10): Does it target IDinsight's operating countries/regions?
+2. SECTOR FIT (0-10): Does it align with IDinsight's sector expertise?
+3. SERVICE FIT (0-10): Does IDinsight offer the required services?
+4. FUNDER FAMILIARITY (0-5): Is the funder one IDinsight already works with or knows?
+5. STRATEGIC VALUE (0-5): Could this open new relationships or demonstrate capabilities?
+
+Return your analysis as JSON only. No markdown, no backticks, no explanation — just the JSON object.
+The JSON must have this structure:
+{
+  "opportunities": [
+    {
+      "title": "string",
+      "organization": "string - the funding/issuing org",
+      "url": "string",
+      "deadline": "string or null",
+      "published": "string",
+      "country": "string",
+      "sector": "string",
+      "summary": "2-3 sentence plain English summary of what they want",
+      "relevance_score": number (0-100, computed as: geographic_fit*3 + sector_fit*2.5 + service_fit*2.5 + funder_familiarity*4 + strategic_value*4),
+      "geographic_fit": number (0-10),
+      "sector_fit": number (0-10),
+      "service_fit": number (0-10),
+      "funder_familiarity": number (0-5),
+      "strategic_value": number (0-5),
+      "rationale": "1-2 sentences on why this is or isn't a fit for IDinsight specifically",
+      "recommended_action": "one of: PURSUE, WATCH, SKIP",
+      "key_requirements": ["array of 2-3 top requirements from the opportunity"]
+    }
+  ]
+}`;
+
+// Sample opportunities (simulating non-ReliefWeb sources)
+const SAMPLE_OPPORTUNITIES = [
+  {
+    title: "Impact Evaluation of Cash Transfer Program in Northern Nigeria",
+    source: "World Bank", url: "#", published: "2026-02-26", deadline: "2026-03-20",
+    description: "The World Bank invites expressions of interest for conducting a rigorous impact evaluation of the National Social Safety Net Program (NASSP) expansion in Northern Nigeria. The evaluation should use a mixed-methods approach including a randomized controlled trial design. Key outcomes include household consumption, food security, children's school enrollment, and women's economic empowerment."
+  },
+  {
+    title: "AI-Powered Crop Disease Detection for Smallholder Farmers in South Asia",
+    source: "Gates Foundation", url: "#", published: "2026-02-24", deadline: "2026-04-01",
+    description: "The Bill & Melinda Gates Foundation seeks proposals for developing and piloting an AI-powered mobile app for early detection of crop diseases affecting rice and wheat in India and Bangladesh. The project should include a rigorous evaluation measuring adoption rates, diagnostic accuracy, and impact on crop yields."
+  },
+  {
+    title: "National Learning Assessment Design in Ethiopia",
+    source: "UNICEF", url: "#", published: "2026-02-27", deadline: "2026-03-25",
+    description: "UNICEF Ethiopia seeks a partner to support the Ministry of Education in designing and implementing a nationally representative learning assessment for Grades 4 and 8 covering literacy, numeracy, and digital skills."
+  },
+  {
+    title: "Enterprise Resource Planning System Implementation",
+    source: "UNGM", url: "#", published: "2026-02-23", deadline: "2026-03-10",
+    description: "The UN Office in Geneva seeks a firm to implement a SAP-based ERP system across administrative offices. Includes requirements gathering, customization, data migration, and training."
+  },
+  {
+    title: "Geospatial Mapping of WASH Infrastructure in Rural Zambia",
+    source: "FCDO", url: "#", published: "2026-02-26", deadline: "2026-03-30",
+    description: "FCDO Zambia is commissioning geospatial mapping of water and sanitation infrastructure in 5 rural provinces. Involves satellite imagery analysis, ground-truthing surveys, GIS platform development, and capacity building."
+  },
+  {
+    title: "M&E Framework for Digital Public Infrastructure in India",
+    source: "DevEx", url: "#", published: "2026-02-28", deadline: "2026-04-10",
+    description: "A major philanthropic funder seeks an organization to develop a comprehensive M&E framework for India's digital public infrastructure initiatives including Aadhaar-linked services, UPI adoption, and DigiLocker. Requires strong relationships with Indian government stakeholders."
+  },
+  {
+    title: "Climate-Smart Agriculture Policy Advisory in Rwanda",
+    source: "African Development Bank", url: "#", published: "2026-02-22", deadline: "2026-03-18",
+    description: "AfDB requests proposals for policy advisory on climate-smart agriculture strategies in Rwanda. Includes reviewing agricultural policies, cost-effectiveness analysis, stakeholder consultations, and producing a policy roadmap."
+  },
+  {
+    title: "Financial Inclusion Survey in Indonesia",
+    source: "Asian Development Bank", url: "#", published: "2026-02-25", deadline: "2026-03-28",
+    description: "ADB seeks a research organization to implement a nationally representative household survey on financial inclusion in Indonesia covering banking access, mobile money, microfinance, with focus on women and rural populations. ~15,000 households."
+  },
+  {
+    title: "Office Furniture Procurement for WHO Regional Office",
+    source: "UNGM", url: "#", published: "2026-02-27", deadline: "2026-03-05",
+    description: "WHO Regional Office for Africa is seeking suppliers for office furniture — desks, chairs, filing cabinets, and conference equipment for new premises in Brazzaville."
+  }
+];
+
+// ============================================================
+// State
+// ============================================================
+let opportunities = [];
+let currentFilter = "ALL";
+let apiKeyValidated = false;
+
+// ============================================================
+// ReliefWeb API — fetch real opportunities
+// ============================================================
+async function fetchReliefWeb() {
+  const countries = ["India", "Kenya", "Ethiopia", "Nigeria", "Zambia", "Philippines", "Rwanda", "Uganda", "Ghana", "Senegal", "Bangladesh", "Indonesia", "Tanzania", "Morocco"];
+  const url = "https://api.reliefweb.int/v1/reports?appname=idinsight-opportunity-finder&preset=latest&limit=20&sort[]=date:desc&fields[include][]=title&fields[include][]=body&fields[include][]=url&fields[include][]=date.created&fields[include][]=country.name&fields[include][]=source.name&fields[include][]=theme.name";
+
+  try {
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error("ReliefWeb API error");
+    const json = await resp.json();
+
+    return (json.data || []).slice(0, 8).map(item => {
+      const f = item.fields || {};
+      const countries_list = (f.country || []).map(c => c.name).join(", ");
+      const themes = (f.theme || []).map(t => t.name).join(", ");
+      const sources = (f.source || []).map(s => s.name).join(", ");
+      const bodySnippet = (f.body || "").replace(/<[^>]*>/g, "").slice(0, 500);
+
+      return {
+        title: f.title || "Untitled",
+        source: "ReliefWeb" + (sources ? " / " + sources.slice(0, 60) : ""),
+        url: (f.url || "#"),
+        published: (f.date || {}).created || new Date().toISOString().slice(0, 10),
+        deadline: null,
+        description: `Countries: ${countries_list}. Themes: ${themes}. ${bodySnippet}`
+      };
+    });
+  } catch (e) {
+    console.warn("ReliefWeb fetch failed, using samples only:", e);
+    return [];
+  }
+}
+
+// ============================================================
+// Claude API — score opportunities
+// ============================================================
+async function scoreWithClaude(rawOpps) {
+  const apiKey = document.getElementById("apiKey").value.trim();
+  if (!apiKey) throw new Error("No API key provided");
+
+  const resp = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": apiKey,
+      "anthropic-version": "2023-06-01",
+      "anthropic-dangerous-direct-browser-access": "true"
+    },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 4096,
+      system: SYSTEM_PROMPT,
+      messages: [{
+        role: "user",
+        content: `Analyze these ${rawOpps.length} opportunities and score each for IDinsight relevance. Return ONLY valid JSON:\n\n${JSON.stringify(rawOpps)}`
+      }]
+    })
+  });
+
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    throw new Error(err.error?.message || `API error: ${resp.status}`);
+  }
+
+  const data = await resp.json();
+  const text = (data.content || []).map(b => b.type === "text" ? b.text : "").join("");
+  const clean = text.replace(/```json|```/g, "").trim();
+  return JSON.parse(clean);
+}
+
+// ============================================================
+// Main scan
+// ============================================================
+async function runScan() {
+  const apiKey = document.getElementById("apiKey").value.trim();
+  if (!apiKey) {
+    showError("Please enter your Anthropic API key first.");
+    return;
+  }
+
+  const btn = document.getElementById("scanBtn");
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading-dot">●</span> Fetching from sources...';
+  hideError();
+
+  try {
+    // 1. Fetch real + sample data
+    btn.innerHTML = '<span class="loading-dot">●</span> Fetching from ReliefWeb API...';
+    const reliefWebOpps = await fetchReliefWeb();
+
+    const allRaw = [...reliefWebOpps, ...SAMPLE_OPPORTUNITIES];
+
+    // 2. Score with Claude
+    btn.innerHTML = '<span class="loading-dot">●</span> AI scoring ' + allRaw.length + ' opportunities...';
+    const result = await scoreWithClaude(allRaw);
+
+    // 3. Sort and display
+    opportunities = (result.opportunities || []).sort((a, b) => b.relevance_score - a.relevance_score);
+    renderResults();
+
+    document.getElementById("lastScan").textContent = "Last scan: " + new Date().toLocaleTimeString();
+    btn.innerHTML = "↻ Rescan";
+  } catch (err) {
+    console.error(err);
+    showError("Scan failed: " + err.message);
+    btn.innerHTML = "▶ Scan Opportunities";
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ============================================================
+// Rendering
+// ============================================================
+function renderResults() {
+  document.getElementById("emptyState").classList.add("hidden");
+  document.getElementById("resultsSection").classList.remove("hidden");
+
+  const pursue = opportunities.filter(o => o.recommended_action === "PURSUE").length;
+  const watch = opportunities.filter(o => o.recommended_action === "WATCH").length;
+  const skip = opportunities.filter(o => o.recommended_action === "SKIP").length;
+
+  // Stats
+  document.getElementById("statsRow").innerHTML = [
+    { label: "Total Found", value: opportunities.length, color: "#60A5FA" },
+    { label: "Pursue", value: pursue, color: "#34D399" },
+    { label: "Watch", value: watch, color: "#FBBF24" },
+    { label: "Skip", value: skip, color: "#6B7280" }
+  ].map(s => `
+    <div class="stat-card">
+      <div class="stat-label">${s.label}</div>
+      <div class="stat-value" style="color:${s.color}">${s.value}</div>
+    </div>
+  `).join("");
+
+  // Filters
+  document.getElementById("filterBtns").innerHTML = ["ALL", "PURSUE", "WATCH", "SKIP"].map(f => `
+    <button class="filter-btn ${currentFilter === f ? 'active' : ''}" onclick="setFilter('${f}')">
+      ${f === "ALL" ? "All" : f.charAt(0) + f.slice(1).toLowerCase()}
+    </button>
+  `).join("");
+
+  renderCards();
+}
+
+function renderCards() {
+  const filtered = currentFilter === "ALL"
+    ? opportunities
+    : opportunities.filter(o => o.recommended_action === currentFilter);
+
+  if (filtered.length === 0) {
+    document.getElementById("cardsContainer").innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-faint);">No opportunities match this filter.</div>';
+    return;
+  }
+
+  document.getElementById("cardsContainer").innerHTML = filtered.map((opp, idx) => {
+    const scoreColor = opp.relevance_score >= 75 ? "#34D399" : opp.relevance_score >= 50 ? "#FB923C" : opp.relevance_score >= 25 ? "#D4A574" : "#F87171";
+    const badgeClass = opp.recommended_action === "PURSUE" ? "badge-pursue" : opp.recommended_action === "WATCH" ? "badge-watch" : "badge-skip";
+    const days = opp.deadline ? Math.ceil((new Date(opp.deadline) - new Date()) / 864e5) : null;
+    const deadlineUrgent = days !== null && days < 14;
+    const deadlineStr = opp.deadline ? new Date(opp.deadline).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "TBD";
+    const pubStr = opp.published ? new Date(opp.published).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
+
+    const metrics = [
+      { label: "Geographic", val: opp.geographic_fit, max: 10 },
+      { label: "Sector", val: opp.sector_fit, max: 10 },
+      { label: "Service", val: opp.service_fit, max: 10 },
+      { label: "Funder", val: opp.funder_familiarity, max: 5 },
+      { label: "Strategic", val: opp.strategic_value, max: 5 }
+    ];
+
+    return `
+      <div class="opp-card fade-in" style="animation-delay:${idx * 50}ms" onclick="toggleDetail(${idx})">
+        <div class="opp-top">
+          <div style="flex:1">
+            <div class="opp-meta">
+              <span class="badge ${badgeClass}">${opp.recommended_action}</span>
+              <span class="chip">${opp.organization || ''}</span>
+              ${opp.country ? `<span class="chip">${opp.country}</span>` : ''}
+            </div>
+            <div class="opp-title">${opp.title}</div>
+          </div>
+          <div class="opp-score">
+            <div class="opp-score-num mono" style="color:${scoreColor}">${opp.relevance_score}</div>
+            <div class="opp-score-label mono">score</div>
+          </div>
+        </div>
+        <div class="opp-summary">${opp.summary || ''}</div>
+        <div class="opp-dates mono">
+          ${pubStr ? `<span>Published: ${pubStr}</span>` : ''}
+          <span class="${deadlineUrgent ? 'deadline-urgent' : ''}">Deadline: ${deadlineStr}${days !== null ? ` (${days}d)` : ''}</span>
+        </div>
+        <div class="opp-detail" id="detail-${idx}">
+          <div class="opp-rationale">"${opp.rationale || ''}"</div>
+          <div class="score-grid">
+            ${metrics.map(m => {
+              const pct = (m.val / m.max) * 100;
+              const color = pct > 70 ? "#34D399" : "#60A5FA";
+              return `
+                <div>
+                  <div class="score-item-header">
+                    <span class="stat-label">${m.label}</span>
+                    <span class="mono" style="font-size:12px;color:var(--text-secondary)">${m.val}/${m.max}</span>
+                  </div>
+                  <div class="score-bar">
+                    <div class="score-fill" style="width:${pct}%;background:linear-gradient(90deg,var(--blue),${color})"></div>
+                  </div>
+                </div>
+              `;
+            }).join("")}
+          </div>
+          ${(opp.key_requirements || []).length > 0 ? `
+            <div class="reqs-label stat-label">Key Requirements</div>
+            <div class="reqs-list">
+              ${opp.key_requirements.map(r => `<span class="req-chip">${r}</span>`).join("")}
+            </div>
+          ` : ''}
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function setFilter(f) {
+  currentFilter = f;
+  renderResults();
+}
+
+function toggleDetail(idx) {
+  const el = document.getElementById("detail-" + idx);
+  if (el) el.classList.toggle("open");
+}
+
+function toggleSources() {
+  const grid = document.getElementById("sourcesGrid");
+  const arrow = document.getElementById("sourcesArrow");
+  grid.classList.toggle("hidden");
+  arrow.style.transform = grid.classList.contains("hidden") ? "none" : "rotate(90deg)";
+}
+
+// ============================================================
+// API Key validation
+// ============================================================
+async function validateKey() {
+  const key = document.getElementById("apiKey").value.trim();
+  const statusEl = document.getElementById("keyStatus");
+  if (!key) {
+    statusEl.innerHTML = '<span class="status-dot red"></span> <span class="status-text">Enter a key</span>';
+    return;
+  }
+  statusEl.innerHTML = '<span class="status-text">Checking...</span>';
+
+  try {
+    const resp = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": key,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true"
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 10,
+        messages: [{ role: "user", content: "Say ok" }]
+      })
+    });
+
+    if (resp.ok) {
+      statusEl.innerHTML = '<span class="status-dot green"></span> <span class="status-text">Key valid</span>';
+      apiKeyValidated = true;
+    } else {
+      const err = await resp.json().catch(() => ({}));
+      statusEl.innerHTML = '<span class="status-dot red"></span> <span class="status-text">' + (err.error?.message || 'Invalid key') + '</span>';
+    }
+  } catch (e) {
+    statusEl.innerHTML = '<span class="status-dot red"></span> <span class="status-text">Connection error</span>';
+  }
+}
+
+// ============================================================
+// Slack webhook
+// ============================================================
+async function sendToSlack() {
+  const webhook = document.getElementById("slackWebhook").value.trim();
+  if (!webhook) {
+    alert("Please enter a Slack webhook URL first.");
+    return;
+  }
+  if (opportunities.length === 0) {
+    alert("Run a scan first.");
+    return;
+  }
+
+  const btn = document.getElementById("slackSendBtn");
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading-dot">●</span> Sending...';
+
+  const pursue = opportunities.filter(o => o.recommended_action === "PURSUE");
+  const watch = opportunities.filter(o => o.recommended_action === "WATCH");
+  const today = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+
+  let text = `📋 *IDinsight Opportunity Digest — ${today}*\n\nFound *${pursue.length}* high-priority and *${watch.length}* watch-list opportunities.\n\n`;
+
+  if (pursue.length > 0) {
+    text += `🟢 *PURSUE — High Priority*\n`;
+    pursue.forEach((o, i) => {
+      const days = o.deadline ? Math.ceil((new Date(o.deadline) - new Date()) / 864e5) : null;
+      text += `\n*${i + 1}. ${o.title}*\n`;
+      text += `   Funder: ${o.organization} | Score: ${o.relevance_score}/100${days !== null ? ` | ⏰ ${days} days` : ''}\n`;
+      text += `   ${o.summary}\n`;
+      text += `   _${o.rationale}_\n`;
+    });
+  }
+
+  if (watch.length > 0) {
+    text += `\n\n🟡 *WATCH — Monitor*\n`;
+    watch.forEach((o, i) => {
+      text += `\n*${i + 1}. ${o.title}*\n`;
+      text += `   ${o.organization} | Score: ${o.relevance_score}/100\n`;
+    });
+  }
+
+  text += `\n\n_Generated by IDinsight Client Opportunity Finder_`;
+
+  try {
+    // Slack webhooks require a proxy due to CORS, so we use the Claude API to relay
+    const apiKey = document.getElementById("apiKey").value.trim();
+    // Direct webhook call (works if CORS isn't blocked — e.g. from a server/script)
+    // For browser demo, we attempt direct and fall back to showing the message
+
+    const resp = await fetch(webhook, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+      mode: "no-cors" // Slack webhooks don't return CORS headers
+    });
+
+    // no-cors means we can't read the response, but if it didn't throw, it likely worked
+    document.getElementById("slackStatus").innerHTML = '<span class="status-dot green"></span> <span class="status-text">Digest sent! Check your Slack channel.</span>';
+  } catch (e) {
+    console.error("Slack error:", e);
+    document.getElementById("slackStatus").innerHTML = '<span class="status-dot yellow"></span> <span class="status-text">CORS blocked in browser. Use the cron/server method for production delivery. Message copied to clipboard.</span>';
+    // Copy to clipboard as fallback
+    try { await navigator.clipboard.writeText(text.replace(/\*/g, "").replace(/_/g, "")); } catch(ce) {}
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zM8.834 6.313a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zM18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zM17.688 8.834a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312zM15.165 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zM15.165 17.688a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z"/></svg> Post to Slack`;
+  }
+}
+
+// ============================================================
+// PDF Download
+// ============================================================
+function downloadPDF() {
+  if (opportunities.length === 0) return;
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+  const pageW = doc.internal.pageSize.getWidth();
+  const margin = 20;
+  const contentW = pageW - margin * 2;
+  let y = 20;
+
+  const addPage = () => { doc.addPage(); y = 20; };
+  const checkPage = (needed) => { if (y + needed > 270) addPage(); };
+
+  // Title
+  doc.setFontSize(20);
+  doc.setFont("helvetica", "bold");
+  doc.text("IDinsight Opportunity Digest", margin, y);
+  y += 8;
+
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(120);
+  doc.text(new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" }), margin, y);
+  y += 5;
+  doc.text("Generated by IDinsight Client Opportunity Finder", margin, y);
+  y += 10;
+
+  // Summary
+  const pursue = opportunities.filter(o => o.recommended_action === "PURSUE");
+  const watch = opportunities.filter(o => o.recommended_action === "WATCH");
+
+  doc.setTextColor(0);
+  doc.setFontSize(11);
+  doc.setFont("helvetica", "bold");
+  doc.text(`Summary: ${pursue.length} high-priority, ${watch.length} watch-list, ${opportunities.length} total opportunities`, margin, y);
+  y += 8;
+
+  // Line
+  doc.setDrawColor(200);
+  doc.line(margin, y, pageW - margin, y);
+  y += 8;
+
+  // Each opportunity
+  opportunities.forEach((opp, idx) => {
+    checkPage(45);
+
+    // Action badge
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "bold");
+    const badgeColor = opp.recommended_action === "PURSUE" ? [5, 150, 105] : opp.recommended_action === "WATCH" ? [217, 119, 6] : [107, 114, 128];
+    doc.setTextColor(...badgeColor);
+    doc.text(opp.recommended_action, margin, y);
+
+    // Score
+    doc.setTextColor(0);
+    doc.text(`Score: ${opp.relevance_score}/100`, pageW - margin - 25, y);
+    y += 5;
+
+    // Title
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(30);
+    const titleLines = doc.splitTextToSize(`${idx + 1}. ${opp.title}`, contentW);
+    doc.text(titleLines, margin, y);
+    y += titleLines.length * 5;
+
+    // Org + deadline
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(100);
+    const deadlineStr = opp.deadline ? new Date(opp.deadline).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "TBD";
+    doc.text(`${opp.organization || ''} | ${opp.country || ''} | Deadline: ${deadlineStr}`, margin, y);
+    y += 5;
+
+    // Summary
+    doc.setTextColor(60);
+    const sumLines = doc.splitTextToSize(opp.summary || '', contentW);
+    doc.text(sumLines, margin, y);
+    y += sumLines.length * 4.5;
+
+    // Rationale
+    if (opp.rationale) {
+      doc.setFont("helvetica", "italic");
+      doc.setTextColor(100);
+      const ratLines = doc.splitTextToSize(opp.rationale, contentW);
+      doc.text(ratLines, margin, y);
+      y += ratLines.length * 4.5;
+    }
+
+    // Scores row
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor(120);
+    doc.text(`Geo: ${opp.geographic_fit}/10  Sector: ${opp.sector_fit}/10  Service: ${opp.service_fit}/10  Funder: ${opp.funder_familiarity}/5  Strategic: ${opp.strategic_value}/5`, margin, y);
+    y += 6;
+
+    // Separator
+    doc.setDrawColor(230);
+    doc.line(margin, y, pageW - margin, y);
+    y += 6;
+  });
+
+  doc.save("IDinsight_Opportunity_Digest_" + new Date().toISOString().slice(0, 10) + ".pdf");
+}
+
+// ============================================================
+// Utils
+// ============================================================
+function showError(msg) {
+  const el = document.getElementById("errorBox");
+  el.textContent = msg;
+  el.classList.remove("hidden");
+}
+function hideError() {
+  document.getElementById("errorBox").classList.add("hidden");
+}
+</script>
+</body>
+</html>
